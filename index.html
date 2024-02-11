@@ -1,0 +1,2337 @@
+<html>
+   <head>
+    <title></title>
+       <meta charset="utf-8">
+       <meta name="viewport" content="width device-width,intial-scale=0.1">
+       <link rel="stylesheet" href="style.css">
+       <style>
+            .row1 ,.tab2{
+                border: 2px solid black;
+                border-collapse: collapse;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+           </div>
+        <p style="text-align:right;">(101-150)pages</p>
+        <ul style="text-align: start";></ul>
+        <h2>Defining Candidates for Exception Views</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The following fields are used to define in which exception views an object can be
+displayed:</p>
+        <li>The ExceptionViewName field of the Exception_View_Class object</li>
+        <li>The ExceptionViewList field of the object</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The ExceptionViewName field contains the unique name of the
+Exception_View_Class object that you created. You must create one
+Exception_View_Class object for each exception view that you define, and the
+name of each object must be unique.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The ExceptionViewList field of a resource object contains a list of
+ExceptionViewNames. You must specify the ExceptionViewName of each exception
+view in which you want this resource to be displayed when the resource has an
+exception state. Because a resource can be displayed in more than one exception
+view, the ExceptionViewList field can contain a list of names</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If you create a resource object to be displayed in an open exception view, one of
+the following tasks is required:</p>
+        <li>Change the ExceptionViewList field from a null value to the list of candidate
+views.</li>
+        <li>Close and then reopen the exception view.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If you want to delete a resource object from RODM that is in an open exception
+view, remove the ExceptionViewName from the ExceptionViewList before you
+delete the resource object. If you delete the resource object from RODM before you
+remove it from the ExceptionViewList, the resource object remains in the view until
+it is closed because GMFHS cannot send updates for deleted objects.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;For SNA resources managed by SNA topology manager, the ExceptionViewList
+field is set by the NetView program when the object is created. The NetView
+program determines the value of this field based on the class of the object. You can
+change the default mapping of classes to exception views by customizing the
+FLBEXV table. For more information about customizing the FLBEXV table, see the
+IBM Tivoli NetView for z/OS SNA Topology Manager Implementation Guide.</p>
+        <h2>Defining the ExceptionViewFilter Field</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The ExceptionViewFilter field is used to define the state that an object must be in
+to be placed in an exception view. There are 5 values in the field; each represents a
+different status filter. Filter 1 is for DisplayStatus, and the remaining 4 filters are
+for UserStatus.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The default for the ExceptionViewFilter is X'4000' (bit value '0100 0000 0000 0000'),
+which indicates that:</p>
+        <li>Only objects in an exception state are candidates for the view. Objects in an<br>
+exception state are those objects that have the value XCPT in the ResourceTraits<br>
+field.</li>
+        <li>No filtering is done on UserStatus.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;This means that if an object maps to an exception state, it is displayed in an
+exception view regardless of its UserStatus. The default value of the
+ExceptionViewFilter can be changed at either the class or object level.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DisplayStatus Filter:</b>Set the ExceptionViewFilter for DisplayStatus to 0 (zero) if
+you want all objects to be considered candidates for an exception view regardless</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;of the DisplayStatus. If you want only objects that are in an exception state to be
+considered candidates for an exception view, leave the ExceptionViewFilter for
+DisplayStatus set to 1, which is the default value.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Shadow objects do not have a DisplayStatus field, so they are not considered to be
+monitorable objects. However, if you set the filter for DisplayStatus in the
+ExceptionViewFilter field to 0 (zero), shadow objects are candidates for the view. Shadow objects must adhere to all of the criteria specified in the<br>
+ExceptionViewFilter field of the view object and the ExceptionViewList field of the
+shadow object must contain the ExceptionViewName of the view.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;UserStatus Filters: </b>Set the UserStatus filters in the ExceptionViewFilter to indicate
+which UserStatuses are filtered out of the exception view. For example, if you want
+to filter out objects that have a UserStatus of “mark” set the mark UserStatus filter
+in the ExceptionViewFilter field to bit value X'01'. If you want to filter all objects
+that are not marked, set the mark UserStatus filter in the ExceptionViewFilter field
+to bit value X'10'.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An object is not displayed in an exception view if the following bits for UserStatus
+are on:</p>
+        <li>X'02' (not monitored)</li>
+        <li>X'40' (aggregation is suspended)</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;This means that you cannot filter on these bits, because they are automatically
+            filtered from an exception view.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Use the “List Suspended Resources” at the NetView management console to
+determine which objects have been suspended from aggregation.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Table 13 contains examples of alternate values for the ExceptionViewFilter field and
+the resultant exception view:</p>
+        
+        <table  class="row">
+                <tr>
+                    <th class="tab1">Value</th> 
+                    <th class="tab1" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Objects in View</th> 
+                      </tr> 
+        
+            <tbody>                                                                                                                       <tr>
+            <td class="tab1">'0000 0000 0000 0000' (X'0000')</td>
+<td class="tab1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All objects defined to the view regardless of the<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DisplayStatus or UserStatus.</td>
+            </tr>
+            <tr>
+            <td class="tab1">'0101 0000 0000 0000' (X'5000')</td>
+                <td class="tab1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All objects in an exception state defined to the view <br>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+that are not marked. All marked objects are filtered<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+out of the view.</td>
+            </tr>
+            <tr>
+            <td class="tab1">'0110 0000 0000 0000' (X'6000')</td>
+             <td class="tab1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All objects in an exception state defined to the view <br>        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;that are marked. All objects that are not marked are<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+filtered out of the view.</td>
+            </tr>
+            </tbody>
+    
+        <style>
+                .row{
+                    border-collapse: collapse;
+                    
+                }
+            .tab1{
+                    border-bottom: 1px solid #000;
+                }
+            </style>
+            
+        </table>
+            <h2>Customizing the DisplayStatus Mapping Table for Exception
+Views</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;You can customize the mapping of DisplayStatus values using the table DUIFSMT. This table consists of statem</p>
+       <p>&nbsp;&nbsp;&nbsp;&nbsp;To customize the table, change the DUIFSMTE statements in sample DUIFSMT to
+reflect the desired DisplayStatus mapping and then use sample CNMSJH13 to:</p>
+        <li>Assemble and link-edit the table to create a load module.</li>
+        <li>Refresh the DisplayStatus change method</li>
+        <li>Trigger a recalculation of the DisplayStatus mapping for all real and aggregate<br>
+objects in RODM.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Recalculate the DisplayStatus mapping so that the new status is immediately
+available for exception views. If you do not want to recalculate until the<br>
+DisplayStatus of the object is changed, comment out the following statement in<sample CNMSJH13:
+OP DUIFRFDS INVOKED_WITH;</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;figure 26 shows the syntax of the DUIFSMTE macro. You specify the default
+values for classes not included in the DUIFSMT table using the value ALL for
+class_name</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The macro format is shown in Figure 26</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DUIFSMTE</b></p>
+        <img src="C:\Users\HP\Downloads\i3.png">
+        <p>Figure 26. Macro DUIFSMTE Syntax</p>
+             <p>&nbsp;&nbsp;&nbsp;&nbsp;More than one keyword can be specified, but no keyword can be specified more
+                 than once.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Where:</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;CLASS=</b>class_name</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The name of the class in RODM for which you are customizing DisplayStatus
+mapping. If you want to specify the default values for classes not included in
+the DUIFSMT table, use the value ALL for class_name.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;To customize the DisplayStatus mapping for all of the objects of a class, one
+statement for that class is necessary. To customize the DisplayStatus mapping
+for specific objects, or groups of objects, of a class, multiple statements are
+required. Each statement with the same value for class_name requires a
+different value for the RESOURCE or MYNAME keyword.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note:</b> RODM names are case-sensitive.</p>
+        <p>For classes managed by SNA topology manager, you can use alias values for
+class. Table 14 on page 104 lists the aliases you can enter and their
+corresponding actual class names as known to RODM; both are accepted by
+the DUIFSMTE macro.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Table 14. Aliases for RODM Class Names</p>
+         <table  class="row">
+            <thead class="col">
+                <tr>
+                    <th >Alias for Cla</th> 
+                    <th >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MyName Value for Cl</th> 
+                      </tr> 
+            </thead>                                                                                                                   <tbody>                                                                                                                       <tr style="border-bottom: 1px solid #000;">
+            <td class="middle">APPNEN</td>
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.1821</td>
+            </tr>
+             <tr style="border-bottom: 1px solid #000;">
+            <td class="middle">APPNNN</td>
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.1822</td>
+             </tr>
+              <tr style="border-bottom: 1px solid #000;">
+            <td class="middle">APPNTRANSMISSIONGROUP</td>
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.1823</td>
+             </tr>
+              <tr style="border-bottom: 1px solid #000;">
+            <td class="middle">APPNTRANSMISSIONGROUPCIRCUIT</td>
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.2058</td>
+             </tr>
+             <tr style="border-bottom: 1px solid #000;">
+            <td class="middle">CROSSDOMAINRESOURCE</td>
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.2281</td>
+             </tr> 
+             <tr style="border-bottom: 1px solid #000;">
+            <td class="middle">CROSSDOMAINRESOURCEMANAGER</td>
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.2278</td>
+             </tr>
+             <tr style="border-bottom: 1px solid #000;">
+            <td class="middle" >DEFINITIONGROUP</td>
+ <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.2267</td>
+             </tr>
+             <tr style="border-bottom: 1px solid #000;">
+            <td class="middle">INTERCHANGENODE</td>
+ <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.1826</td>
+             </tr><tr style="border-bottom: 1px solid #000;">
+             <td class="middle">LENNODE</td>
+ <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.1827</td>
+             </tr><tr style="border-bottom: 1px solid #000;">
+             <td class="middle">LOGICALLINK</td>
+ <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.2085</td>
+             </tr><tr style="border-bottom: 1px solid #000;">
+            <td class="middle">LOGICALUNIT</td>
+ <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.1829</td>
+             </tr><tr style="border-bottom: 1px solid #000;">
+            <td class="middle">MIGRATIONDATAHOST</td>
+ <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.2155</td>
+             </tr><tr style="border-bottom: 1px solid #000;">
+            <td class="middle">PORT</td>
+ <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.2089</td>
+             </tr><tr style="border-bottom: 1px solid #000;">
+            <td class="middle">T2-1NODE</td>
+ <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.1843</td>
+             </tr><tr style="border-bottom: 1px solid #000;">
+            <td class="middle">T4NODE</td>
+ <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.1844</td>
+             </tr><tr style="border-bottom: 1px solid #000;">
+            <td class="middle">T5NODE</td>
+ <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.1845</td>
+             </tr>
+             <tr>
+             <td class="middle">VIRTUALROUTINGNODE</td>
+ <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.3.18.0.0.1845</td>
+             </tr>
+        </table>
+    
+        
+        
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;See “Implementing Exception View Processing for MultiSystem Manager” on
+page 110 for information on exception view processing.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;XCPT=</b>value</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Specifies DisplayStatus values of objects considered to be in an exception state.
+More than one value can be specified, but no value can be specified more than
+once. Objects with these DisplayStatus values are added to an exception view
+if the UserStatus and ExceptionViewList criteria are also met.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note: </b>If XCPT is not specified, or if the value for XCPT is null, the object is
+not included in an exception view that is defined to only include exception
+objects. CrossDomainResourceManager in Figure 30 on page 109 is not
+displayed in an exception view that has an ExceptionViewFilter of X'4000'.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The following <b>XCPT</b> values are possible:</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DEGRD</b></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Specifies objects with a DisplayStatus value of 133 (degraded).</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;INTER</b></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Specifies objects with a DisplayStatus value of 131 (intermediate).</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;LOWSA</b></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Specifies objects with a DisplayStatus value of 145 (low satisfactory).</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;LOWUN</b></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Specifies objects with a DisplayStatus value of 161 (low unsatisfactory).</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;MEDSA</b></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Specifies objects with a DisplayStatus value of 144 (medium<br>
+satisfactory).</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;MEDUN</b></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Specifies objects with a DisplayStatus value of 160 (medium<br>
+unsatisfactory).</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;SATIS</b>Specifies objects with a DisplayStatus value of 129 (satisfactory).</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;SDGRD</b></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Specifies objects with a DisplayStatus value of 134 (severely degraded).</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;UNKWN</b></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Specifies objects with a DisplayStatus value of 132 (unknown).</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;UNSAT</b></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Specifies objects with a DisplayStatus value of 130 (unsatisfactory).<br>
+There are 16 possible user-defined DisplayStatus values that are reserved for<br>
+            customer use only. Possible user-defined values for <b>XCPT</b> are:</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS136</b>Specifies objects with a user-defined DisplayStatus value of 136.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS137</b>Specifies objects with a user-defined DisplayStatus value of 137</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS138</b>Specifies objects with a user-defined DisplayStatus value of 138.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS139</b>Specifies objects with a user-defined DisplayStatus value of 139.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS140</b>Specifies objects with a user-defined DisplayStatus value of 140.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS141</b>Specifies objects with a user-defined DisplayStatus value of 141.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS142</b>Specifies objects with a user-defined DisplayStatus value of 142.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS143</b>Specifies objects with a user-defined DisplayStatus value of 143.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS152</b>Specifies objects with a user-defined DisplayStatus value of 152.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS153</b>Specifies objects with a user-defined DisplayStatus value of 153.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS154</b>Specifies objects with a user-defined DisplayStatus value of 154.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS155</b>Specifies objects with a user-defined DisplayStatus value of 155.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS156</b>Specifies objects with a user-defined DisplayStatus value of 156.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS157</b>Specifies objects with a user-defined DisplayStatus value of 157.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS158</b>Specifies objects with a user-defined DisplayStatus value of 158.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;DS159</b>Specifies objects with a user-defined DisplayStatus value of 159.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;STGRPn=</b>value<b>, where n is a number from 1 to 8</b></p> 
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Specifies a group of DisplayStatus values for status group aggregation (see</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;“Status Groups” on page 140). More than one value can be specified, but no
+value can be specified more than once per status group. If the DisplayStatus
+value of a real object matches a DisplayStatus value in a status group, any
+parent aggregate objects is assigned the DisplayStatus value from the same
+status group if the status group is defined for the parent aggregate object. If
+more than one DisplayStatus value is defined in the status group for the
+aggregate object, the first DisplayStatus value is used.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The groups are prioritized from 1 (high) to 8 (low). For any STGRPn, if the
+keyword is not specified or is null on either a real or aggregate object then
+there can be no status override for that status group.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The possible STGRPn values are the same as those listed for the XCPT
+keyword.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;RESOURCE=</b>resource_name</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The DisplayResourceName of the specific resource or group of resources to
+which these values apply. You can use the wildcard character * (asterisk) at the
+end of the resource name to specify groups of resources. You cannot use a
+wildcard character * embedded in a resource name. See “Specifying Resource
+Names for DisplayStatus Mapping” on page 107 for more information.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note: </b>The RESOURCE and MYNAME keywords cannot both be specified in
+the same DUIFSMTE statement.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;MYNAME=</b>resource_name</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The MyName of the resource or group of resources to which these values
+apply. You can use the wildcard character * (asterisk) at the end of the resource
+name to specify groups of resources. You cannot use a wildcard character *
+embedded in a resource name.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note: </b>The MYNAME and RESOURCE keywords cannot both be specified in
+the same DUIFSMTE statement.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;USRXMETH=</b>method_name</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The name of a RODM user method to be triggered for objects in this class; if
+specified, the method might override the DisplayStatus mapping. See
+“Creating a DisplayStatus Method for Exception Views” on page 109 for more
+information.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;END</b><p></p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;This keyword ends table processing. DUIFSMTE END must be the last
+statement in your source for the table.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Usage Notes:</b></p>
+        <ol><li>In sample DUIFSMT, DUIFSMTE must start in column 10. You can code the
+keywords in the columns following DUIFSMTE, separated by a space.<li>If a statement exceeds 71 characters, put a continuation character in column 72
+and continue the statement in column 16 of the next line.</li><li>If you enter more than one statement with the same class_name and
+resource_name values, the first statement is used and the other statements are
+ignored; a warning message is issued.</li></ol>
+        <h3>Default Values for Classes</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;To specify the default values for all classes not defined in the DUIFSMT table, use
+the value ALL for class_name. For example:</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;DUIFSMTE CLASS=ALL,XCPT=(DEGRD,INTER,SDGRD,UNSAT)</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;These values apply to all classes unless they are overridden by other statements.
+You only need to code the specific classes that differ from the values you specify<br>
+for CLASS=ALL.</p>
+        <h3>Specifying Resource Names for DisplayStatus Mapping</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;You can specify the DisplayStatus mapping for specific resources or groups of<br>
+resources within a class. To specify the resource name, use the RESOURCE or<br>
+MYNAME keyword of the DUIFSMTE macro. You can use an asterisk (*), the<br>
+wildcard character, at the end of the resource name to specify groups of resources.<br>
+You cannot embed wildcard characters in the resource name.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If you want to customize a specific resource, code the statement for that resource<br>
+before other generic statements that match in its class. (See Usage Note 3 on page<br>
+106.) For example, assume that you have a resource in the<br>
+GMFHS_Managed_Real_Objects_Class whose DisplayResourceName is RALXT1<br>
+and MyName is SYSPLEX.PLEX1.RALXT1. If you want resource<br>
+SYSPLEX.PLEX1.RALXT1 to map to XCPT if it has an unsatisfactory status, but<br>
+you do not want other resources in that class to do the same, code the statement<br>
+for the resource first as shown in Figure 27</p>
+    <img src="C:\Users\HP\Downloads\i1.png">
+        <p>Figure 27. Customizing a Resource</p>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;If, in Figure 27, the second DUIFSMTE statement had been coded before the first
+DUIFSMTE statement, resource SYSPLEX.PLEX1.RALXT1 and all other objects in
+the GMFHS_Managed_Real_Objects_Class map to an exception only when they
+have an intermediate status.</p>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;The rules for the RESOURCE keyword are the same as the rules for the
+RESOURCE keyword in the customization tables of the SNA topology manager. See the IBM Tivoli NetView for z/OS SNA Topology Manager Implementation Guide for
+more information.</p>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;Figure 28 illustrates an example of coding both a MYNAME keyword and a
+RESOURCE keyword for the same class. Assume that you have a resource object in
+the GMFHS_Managed_Real_Objects_Class whose MyName is
+SYSPLEX.PLEX1.RALXT1 and DisplayResourceName is RALXT1. If you coded
+DUIFSMTE entries as shown in Figure 28, the resource matches against all three
+DUIFSMTE entries. However, because the order in which the statements are coded
+is important, the first DUIFSMTE entry is the one that matches the exception state.
+This object is an exception only if its DisplayStatus is intermediate</p>
+    <img src="C:\Users\HP\Downloads\i2.png">
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;Figure 28. Example of a MYNAME and RESOURCE Keyword in the Same DUIFSMTE Entry</p>
+         <h2>Examples of Customizing DisplayStatus Mapping</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The examples in this topic are provided to give you a better understanding of
+mapping DisplayStatus to an exception state. In the first example (shown in
+Figure 29), assume the following conditions:</p>
+        <li>You want to display all objects of the t4Node (1.3.18.0.0.1844) class with a
+DisplayStatus of unsatisfactory or unknown in an exception view. (Use the alias
+from Table 14 on page 104 for the class name.)</li>
+        <li>You want to display all objects of the appnEN (1.3.18.0.0.1821) class with a
+DisplayStatus of unsatisfactory, intermediate, or unknown in an exception view. (Use the actual MyName value from Table 14 on page 104 for the class name.)</li>
+        <li>You want to display all objects of the GMFHS_Aggregate_Objects_Class in an
+exception view if their DisplayStatus value is severely degraded.</li>
+        <li>For objects in all other classes, you want to place them in exception views only
+if their DisplayStatus is unsatisfactory or severely degraded.</li>
+        <p>Using the previously listed conditions, Figure 29 shows the coding of the
+DisplayStatus mapping table. Note that the fourth statement sets the defaults.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;DUIFSMTE CLASS=T4NODE,XCPT=(UNSAT,UNKWN)</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;DUIFSMTE CLASS=1.3.18.0.0.1821,XCPT=(UNSAT,INTER,UNKWN)</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;DUIFSMTE CLASS=GMFHS_Aggregate_Objects_Class,XCPT=(SDGRD)</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;DUIFSMTE CLASS=ALL,XCPT=(UNSAT,SDGRD</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Figure 29. DisplayStatus Mapping Table Coding Example 1</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;For the second example (shown in Figure 30 on page 109), assume the following<br>
+conditions:</p>
+        <li>You have created a RODM method named CUSTMTH1 to decide whether
+objects of the t2-1Node are to be displayed in exception views based on the
+values of other fields in RODM.</li>
+        <li>You do not want objects of the crossDomainResourceManager class to be
+displayed in any exception view that has an ExceptionViewFilter value of
+X'4000'.</li>
+        <li>You want the object in the appnEN class with a DisplayResourceName of
+USIBMNT.NCPPU1 to be displayed in an exception view regardless of its status.
+No user-defined DisplayStatus values are defined.</li>
+        <li>You want objects in the appnEN class with the SNA network ID portion of the
+DisplayResourceName of USIBMNT to be displayed in exception views if their
+status is not satisfactory. No user-defined DisplayStatus values are defined.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Using the previously listed conditions, Figure 30 on page 109 shows the coding for<br>
+the DisplayStatus mapping table.</p>
+        <img src="C:\Users\HP\Downloads\i4.png">
+        <h2>Creating a DisplayStatus Method for Exception Views</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;You can code an object independent method to provide an extra level of
+DisplayStatus exception processing in addition to what is provided by the
+DUIFSMT table. A sample user method, DUIFCUXM, is provided for this purpose.
+See this sample when writing your user method.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If you specify a method name with the USRXMETH keyword in the DUIFSMT
+table, that method is triggered asynchronously each time the DisplayStatus of the
+specified object changes. This method must follow the guidelines for RODM
+methods. For more information about writing RODM methods, see Chapter 13,
+“Writing RODM Methods,” on page 343.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The method is triggered asynchronously from the DUIFCRDC method and is
+passed the object ID for which a DisplayStatus change has occurred. This method
+has the following input parameters:</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Smallint Total_length;</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Smallint Data_Type;</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Smallint Data_Length;</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;ObjectID Resource_Object_ID;</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Integer Requested_exception_status;</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Because the user method is asynchronous, the original conditions that cause it to
+be driven might not be true when the user method gains control. Therefore, no
+prequeried field values are passed to the user method from method DUIFCRDC.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Be aware that timing and error handling problems can occur. For example, the
+mapping of exception state from DUIFSMT can cause an object to be added to an
+exception view, but the user method can change the exception state of the same
+object so that it is removed a second later. Errors in the user method must be
+resolved by the user method. For more information about asynchronous error
+handling in RODM, see Chapter 11, “Writing Applications that Use RODM,” on
+page 305.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If you are receiving unexpected results from your user method and suspect that it
+is not being triggered, the user method might be installed incorrectly. In this case,
+RODM issues a return code and reason code in the transaction information block.
+This error is written to the RODM log as a UAPI trace entry, depending on the
+values of LOG_LEVEL and MLOG_LEVEL that are set in the customization file.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The log entry contains the following information:</p>
+        <li>Return code: 8</li>
+        <li>Reason code: 81</li>
+        <li>Function ID: 1416 (Trigger an Object Independent Method)</li>
+        <li>Data: your user method name</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note: </b>To test the installation of your user method, you can trigger it using
+RODMVIEW.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The user method accepts any criteria, including information in RODM, to
+determine the exception state of an object. When the exception state is determined,
+method DUIFVCFT, which is provided by IBM, is triggered from the user method
+to implement the status in the ResourceTraits field of the specified object.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Case 1: Change exception state of an object to XCPT. </p>
+        <ol><li>From the user method, pass Requested_exception_status=1 to method
+DUIFVCFT.</li><li>DUIFVCFT changes the ResourceTraits field to XCPT.</li></ol>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Case 2: Change exception state of an object to NOXCPT.</p>
+        <ol><li>From the user method, pass Requested_exception_status=0 to method
+DUIFVCFT.</li><li>DUIFVCFT changes the ResourceTraits field to NOXCPT.</li></ol>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;In either case, the setting of the ResourceTraits field can result in an object being
+added to, or deleted from, an open exception view. This determination is made by
+method DUIFVCFT.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The input parameters to method DUIFVCFT are the same as the input to the user
+method, except Requested_exception_status is filled in only when you trigger
+DUIFVCFT. Trigger DUIFVCFT only if the user method determines that the
+exception state of the input object needs to change.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;You can also write a user method to filter resources from a view that are marked
+as failing because of a higher-level resource failure. Method DUIFCUX2 is
+provided as a sample method that performs this function.</p>
+        <h2>Implementing Exception View Processing for MultiSystem<br>
+Manager</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An exception view is a graphic list of objects that can be filtered by the value of
+the DisplayStatus or UserStatus fields of the object. Enabling exception view
+processing for MultiSystem Manager objects enables you to recognize failing
+resources in a timely manner.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;To implement exception view processing:</p>
+        <ol><li>Modify NetView part DUIFSMT to include the statements from sample
+FLCSSMT. DUIFSMT is an assembler part and does not support the
+%INCLUDE statement. As a result, you must include these statements into
+DUIFSMT by manually editing the file.<p>&nbsp;&nbsp;&nbsp;&nbsp;Sample FLCSSMT is the sample table that maps the DisplayStatus of
+MultiSystem Manager objects and classes to exceptions or non-exceptions.
+            FLCSSMT is shipped in the CNMSAMP data set.</p><li>Run the NetView JCL sample CNMSJH13 to assemble and link-edit DUIFSMT. This results in: <li><p> Assembling and link-editing the table to create a load module.</p><p>v Refreshing the DisplayStatus change method.</p><p>Recalculating the DisplayStatus mapping for all real and aggregate objects in
+            RODM.</p>Modify the MultiSystem Manager exception view file<p>&nbsp;&nbsp;&nbsp;&nbsp;The MultiSystem Manager exception view table lists the names of the exception
+views that a RODM object is associated with when the RODM object is created
+by MultiSystem Manager.</p><p>&nbsp;&nbsp;&nbsp;&nbsp;If you have already implemented exception view processing for MultiSystem
+Manager, modify the existing MultiSystem Manager exception view table.</p><p>&nbsp;&nbsp;&nbsp;&nbsp;If you have not already implemented exception view processing for
+MultiSystem Manager, copy the FLCSEXV sample to a data set accessible from
+the DSIPARM DD concatenation defined in your NetView start procedure.
+Rename the sample file to a name appropriate for your environment. The
+FLCSEXV sample resides in the CNMSAMP data set.</p><p>&nbsp;&nbsp;&nbsp;&nbsp;The FLCSEXV sample contains sample exception view statements for all of the
+MultiSystem Manager real object classes. You can add exception views for
+aggregate objects. You can also create an object in the Exception_View_Class
+class (see sample FLCSDM6 for an example) and then use the MyName field of
+the Exception_View_Class object as the value for the EXVWNAME keyword.</p><p>&nbsp;&nbsp;&nbsp;&nbsp;All of the statements are commented in the sample. If you want to perform
+exception view processing for a particular object class, uncomment the
+statements associated with that object class.</p><p>&nbsp;&nbsp;&nbsp;&nbsp;FLCSEXV does support the %INCLUDE statement. See the prologue of sample
+FLCSEXV for information regarding the syntax of the table.</p><li>Specify the name of the MultiSystem Manager exception view table on the
+(MSM)COMMON.FLC_EXCEPTION_VIEW_FILE statement in the CNMSTUSR
+or CxxSTGEN member.</li><li>The MultiSystem Manager data model is loaded using the NetView CNMSJH12
+sample. The prologue of each of these samples contains a short description of
+the data model members that are shipped with MultiSystem Manager. If you are using the Open feature, uncomment the statement in the CNMSJH12
+JCL sample for the FLCSDM6O data model sample.</li></ol>
+        <html><head>
+            <style>
+            table{border-collapse: collapse;
+                width: 100%;}
+                th,td{
+                padding: 8px;
+                    text-align: left;
+                    border-bottom: 1px solid black;
+                }
+            </style>
+     <table>
+        <tr>
+            <th>If you want information about...</th>
+            <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Refer to...</th>
+         </tr>
+         <tr style="border-bottom: 1px solid black;">
+             <td>Exception view processing</td>
+             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IBM Tivoli NetView for z/OS Resource Object<br>
+Data Manager and GMFHS Programmer's Guide</td>
+         </tr>
+         <tr style="border-bottom: 1px solid black;">
+        <td>DUIFSMT</td>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IBM Tivoli NetView for z/OS Resource Object<br>
+Data Manager and GMFHS Programmer's Guide</td>
+         </tr>
+        </table>
+        
+        <h2>Locate Resource Function</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The locate resource function enables the operator to display a resource when the
+name of the view that contains it is unknown. Multiple types of views can be
+searched and built when the object is found in RODM.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When the locate resource function is selected, the request is passed to GMFHS.
+GMFHS issues a locate request for the LocateName field and the
+DisplayResourceName field for the uppercase version of the entry. The requested
+views are built for objects in either list. Note that the LocateName field is of type
+IndexList and can have multiple values. Therefore, you can have multiple aliases
+for the object, and locate the object using any of them. Remember that the locate is
+on an uppercase string, so the values in LocateName must also be uppercase. The
+value of DisplayResourceName field does not have to be uppercase.</p>
+        <h2>Restricting Recursive Views</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;While building some types of views, GMFHS queries a large number of objects to
+find all of the objects that belong in a view. This can result in views that are</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;unusable because they have too many objects in them. You can use the HopCount
+field to restrict the number of objects that GMFHS queries. For example, if you set
+the value of the HopCount field to 3, GMFHS only queries up to 3 levels of objects
+from the selected object. If you want GMFHS to query all objects, set the value of
+the HopCount field to 0 (zero).</p>
+        <h2>Refreshing Open Views</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;GMFHS sends a view change notification to the workstation when an object, or
+connectivity field, used in building the view has changed in RODM. This is done
+by a notification method, DUIFVNOT, that is installed on all connectivity fields as
+well as fields on objects or classes that control how views are built. The method is
+installed by sample FLBTRDME when the data model is loaded. FLBTRDME calls
+an object independent method, DUIFVINS, which installs DUIFVNOT on each
+field.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Note that the notification method is inherited by the objects of a class. For a list of
+all the fields on which GMFHS installs DUIFVNOT, see sample FLBTRDME.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Method DUIFVINS must be run for each new class or connectivity field that is
+added to the data model. See “DUIFVINS: Install View Granularity Method
+(DUIFVNOT)” on page 507 for a description of method DUIFVINS.</p>
+        <hr style="border-top: 2px solid black">
+        <h2>Applying Span-of-Control to Views</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;This section shows how GMFHS determines which resource and view names are
+used to check span authorization when building span-restricted views.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;This section often refers to the NGMFVSPN and CTL attributes. These are not
+RODM attributes. They are attributes defined in either the NetView operator
+profiles in the DSIPRF data set or the NETVIEW segment of the USER profiles in a
+system authorization facility (SAF) product, such as RACF®
+. See the IBM Tivoli
+NetView for z/OS Security Reference for more information about these attributes.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Spans can be used to restrict operators from seeing views and resources within
+views. To apply span-of-control to views:</p>
+        <li>Use the NGMFVSPN attribute to specify whether each operator is subject to
+span checking for views and resources within views.</li>
+        <li>Use the NetView span table to define views and resources within views to
+spans.</li>
+        <li>Use the CTL attribute to specify that span checking must be done for this
+operator.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;For more information about defining resources and views to spans in the NetView
+span table, see the IBM Tivoli NetView for z/OS Security Reference.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Before you can use spans to restrict views and resources within views, you need to
+understand the naming convention used by RODM to identify views and
+resources. Resource and view names are represented in the NetView span table as
+resource and view identifiers. These identifiers, which can contain wildcard
+characters, must match exactly the names used by GMFHS during the view
+building process. The GMFHS rules for determining resource and view names are
+described in this section.</p>
+        <h2>Views</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;As described in “Object Discovery Process” on page 87, all of the views built by
+GMFHS can be classified as either predefined or dynamically built. GMFHS uses a
+different procedure to determine the view name, depending on whether the view
+is predefined or dynamic.</p>
+        <h2>Defining Predefined Views to Spans</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Predefined views are defined by the customer. Each predefined view is represented
+by a view object in RODM. The following types of views can be predefined to
+RODM:</p>
+        <li>Network</li>
+        <li>Exception</li>
+        <li>Configuration peer</li>
+        <li>Configuration backbone</li>
+        <li>Configuration logical</li>
+        <li>Configuration physical</li>
+        <li>More Detail logical</li>
+        <li>More Detail physical</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Network, exception, and configuration peer views can only be predefined; they are
+never dynamically built by RODM. The other views in the above list can be either
+predefined or dynamically built.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When you define a predefined view to a span in the NetView span table, the view
+identifier must be equal to the MyName attribute of the view object. To see how
+predefined views can be defined to spans, consider this example. Suppose a
+network view is predefined to RODM and the MyName field is equal to
+MY_NETWORK_VIEW. If the span_level position of the NGMFVSPN attribute specifies
+that view names are checked for span authorization, GMFHS verifies that the
+operator requesting the view has span authorization for view name
+MY_NETWORK_VIEW.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If the following statement is defined in the NetView span table, an operator, with
+span SPAN1 started, can access the view:</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;SPANDEF SPAN=SPAN1,VIEW=MY_NETWORK_VIEW;</p>
+        <p>Alternatively, a SPANDEF statement can be defined using wildcard characters that
+matches the MY_NETWORK_VIEW view name, such as in the following examples:</p>
+        <li>SPANDEF SPAN=SPAN1,VIEW=*VIEW;</li>
+        <li>SPANDEF SPAN=SPAN1,VIEW=M*;</li>
+        <li>SPANDEF SPAN=SPAN1,VIEW=*NETWORK*;</li>
+        <h3>SPANDEF SPAN=SPAN1,VIEW=*NETWORK*;</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Dynamically built views are not represented by a view object in RODM. When you
+define a dynamically built view to a span in the NetView span table, the view
+identifier must be equal to the DisplayResourceName field of the selected resource,
+appended with a three or four character suffix designating the type of view.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The following types of views can be dynamically built by GMFHS:</p>
+        <b>View Type</b>
+        <b>Suffix</b>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;ConfigurationBackbon</p>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-BAK</p>
+       <p>&nbsp;&nbsp;&nbsp;&nbsp;Configuration Child</p> 
+       <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-CHD</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Configuration Child II (More Detail LU)</p> 
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-MLU</p>
+         <p>&nbsp;&nbsp;&nbsp;&nbsp;Configuration Child III (More Detail Definition Group)</p>
+           <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-MDF</p>
+             <p>&nbsp;&nbsp;&nbsp;&nbsp;Configuration Logical</p>
+              <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-LOG</p>
+               <p>&nbsp;&nbsp;&nbsp;&nbsp;Configuration Logical/Physical</p>
+               <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-LP</p>
+                 <p>&nbsp;&nbsp;&nbsp;&nbsp;Configuration Paren</p>
+               <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-PAR</p>
+               <p>&nbsp;&nbsp;&nbsp;&nbsp;Configuration Physical</p>
+               <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-PHY</p>
+               <p>&nbsp;&nbsp;&nbsp;&nbsp;Fast Path</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-FP</p>
+                 <p>&nbsp;&nbsp;&nbsp;&nbsp;More Detail Logical</p>
+                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-MDL</p>
+                  <p>&nbsp;&nbsp;&nbsp;&nbsp;More Detail Physical</p>
+                  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-MDP</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note:</b> The hyphen is part of the suffix.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;This example shows how a dynamically built view can be defined to a span.
+Suppose an NMC locate failing resource view is selected for an aggregate resource
+whose DisplayResourceName field is equal to MyAggResource. If the span_level
+position of the NGMFVSPN attribute specifies span checking for view names,
+GMFHS verifies that the operator requesting the view has span authorization for
+view name MyAggResource-FP.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;As another example, suppose a configuration parent view is selected for a real
+resource whose DisplayResourceName field is equal to NETA.NCP1. If the span_level
+position of the NGMFVSPN attribute specifies span checking for view names,
+GMFHS verifies that the operator requesting the view has span authorization for
+view name NETA.NCP1-PAR.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When you are defining views to spans, especially dynamically built views, it can
+be advantageous to use wildcard characters. For more information about wildcard
+characters, see the IBM Tivoli NetView for z/OS Security Reference.</p>
+        <h2>Examples of Defining Views to Spans</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The following examples are provided to help you understand how to define views
+to spans. The examples assume:</p>
+        <li>CTL=SPECIFIC has been defined for the operator requesting the view.</li>
+        <li>The span_level position of NGMFVSPN specifies span checking for view names.</li>
+        <li>The operator requesting the view has span SPAN1 started. </li>
+        <li>There are no other SPANDEF statements defined in the span table that matches
+the view names other than those that are defined in the examples.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 1:</b> SPANDEF statements that define view identifiers to spans do not exist
+in the NetView span table. The operator cannot open any views until one or more
+view identifiers have been defined to span SPAN1 with SPANDEF statements in
+the NetView span table.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 2:</b> Because dynamically built views derive their view names from the
+resource by which they were selected, resource identifiers can be defined to spans
+based on the name of the resource. For example, assume all resource names in
+network A begin with the characters NETA and the following statement is defined in
+the NetView span table:</p>
+        <li>SPANDEF SPAN=SPAN1,VIEW=NETA*;</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An operator with span SPAN1 started can display any view whose view name
+begins with NETA, such as NETA.NCP-FP, NETA_NETWORK_VIEW, NETA.HOST-MDL or NETA</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 3:</b> If restricting operators by resource name is not feasible, perhaps
+access to views are restricted by view type. For example, to authorize an operator
+to see only NMC locate failing resource or more detail views, define the following
+statement in the NetView span table:</p>
+        <li>SPANDEF SPAN=SPAN1,VIEW=(*-FP,*-MD*);</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An operator with span SPAN1 started can display any NMC locate failing resource
+or more detail view.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 4: </b>To give an operator span authorization for all NMC locate failing
+resource views except those that are generated by resources in network A, define
+the following statement in the NetView span table:</p>
+        <li>SPANDEF SPAN=SPAN1,VIEW=(*-FP<NETA*-FP>);</NETA*-FP></li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An operator with span SPAN1 started can display any NMC locate failing resource
+view except those that are generated by a resource whose DisplayResourceName
+begins with the characters NETA.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 5:</b> To give an operator span authorization for all views except more
+detail views, define the following statement in the NetView span table:</p>
+        <li>SPANDEF SPAN=SPAN1,VIEW=*<*-M*>;</*-M*></li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An operator with span SPAN1 started can display any view except for any type of
+more detail view.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 6:</b> View names are truncated at a maximum of 32 characters. If you have
+a resource whose DisplayResourceName field is greater than 32 characters, for
+example, a DisplayResourceName value of NETWORKA.OPCENTER22.OPERATOR.SHIFT1. If this resource is selected and a configuration parent view is requested, the
+resulting dynamic view name sh be NETWORKA.OPCENTER22.OPERATOR.SHIFT1-PAR. However, the view name is truncated to 32 characters which results in
+NETWORKA.OPCENTER22.OPERATOR-PAR. Even though the DisplayResourceName is 32
+characters, it is truncated because the suffix must be contained within the 32
+character view name. The suffix is never truncated from the view name.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Depending on your SPANDEF definitions, this truncation might cause you
+problems in your span table. Assume that you have set the DisplayResourceName
+of a group of resources to indicate which shift of operators are responsible for</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;monitoring them. To give an operator span authorization for all resources
+designated as SHIFT1 resources, you defined the following statement in the
+NetView span table:</p>
+        <li>SPANDEF SPAN=SPAN1,VIEW=*SHIFT1*;</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;View name NETWORKA.OPCENTER22.OPERATOR-PAR does not match this SPANDEF
+statement and the operator cannot display the view. You must either set the value
+of DisplayResourceName so the length of the value is less than 28 characters or
+define SPANDEF statements that do not reference truncated characters of the
+DisplayResourceName.</p>
+        <h2>Resources</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If the span_level position of the NGMFVSPN attribute specifies span checking for
+resource names, only those resources that are authorized to a span started for the
+operator requesting the view are displayed in the view. Before you define resource
+identifiers to spans in the NetView span table, understand which resource names
+are used by GMFHS to determine span authorization.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;A resource is monitorable if it can be displayed in a view and is not a shadow
+object. For example, all resources defined in the GMFHS data model under class
+GMFHS_Monitorable_Objects_Parent_Class are monitorable objects. All
+monitorable objects in RODM have the following fields:</p>
+        <li>MyName</li>
+        <li>DisplayResourceName</li>
+        <li>UserSpanName</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;You can assign a value to the MyName field when you create an object in RODM,
+but you cannot modify the MyName value after the object is created.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;You can assign and modify the DisplayResourceName field. This field is used to
+create the resource names displayed in NetView management console views.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The DisplayResourceName can be set by GMFHS method DUIFCLRT. This method
+is used to link the DisplayResourceType field of a resource object to the Resources
+field of an object of the Display_Resource_Type_Class. If the DisplayResourceName
+is null when the method is triggered, the method sets the value of the
+DisplayResourceName field equal to the value of the MyName field. If the
+DisplayResourceName is not null when the method is triggered, no change is
+made to the DisplayResourceName.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note:</b> Remember that MultiSystem Manager, SNA topology manager, and other
+user applications can modify the DisplayResourceName.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;You can also create and modify the UserSpanName field. MultiSystem Manager, as
+well as other user applications, can modify the UserSpanName field. For more
+information about how MultiSystem Manager uses this field, see IBM Tivoli
+NetView for z/OS Installation: Configuring Graphical Components.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;SNA objects defined in RODM as shadow objects, that is, objects defined in the
+GMFHS_Shadow_Objects_Class, do not have a UserSpanName field. To ensure
+consistency across RODM-based and workstation-based views, only the MyName
+field is used to determine span authorization for shadow objects. Even though the
+DisplayResourceName field can be defined for a shadow object and this name is
+displayed in a view, the name is not used to determine span authorization.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Depending on how you use RODM, you can assign a different value to each of
+these fields for a given resource object. For example, when defining a given
+workstation in your network, you can define the MyName field as
+netid.resource_type.real_resource_name and use this field to keep track of the
+resources in your network.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;You can then define DisplayResourceName for that workstation as the userid of the
+user who owns the workstation. Because the DisplayResourceName value is
+displayed as the resource identifier in views, this can make it easier for operators
+to determine the office in which a failing resource is located.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Similarly, you can define the UserSpanName as the netid for the network that
+contains the workstation. You can then use the UserSpanName to define a group of
+workstations that are all in the same netid.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;GMFHS uses the following logic to determine span authorization for a resource in<br>
+a view:</p>
+        <li>If the resource is a shadow object, the MyName field is always used to
+determine span authorization.</li>
+        <li>If the resource is not a shadow object:</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;– If a value exists for UserSpanName, the UserSpanName field is used to
+determine span authorization.</p>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;– If a value does not exist for UserSpanName, but a value does exist for
+DisplayResourceName, the DisplayResourceName field is used to determine
+span authorization.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;– If a value does not exist for UserSpanName or DisplayResourceName, the
+MyName field is used to determine span authorization.</p>
+        <h2>Examples of Restricting Resources Within Views Using Spans</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The following examples show how you can restrict resources within views. The
+examples are based on the following assumptions:</p>
+        <li>CTL=SPECIFIC was defined for the operator requesting the view.</li>
+        <li>The span_level position of NGMFVSPN specifies span checking for resource
+names.</li>
+        <li>The operator requesting the view started span SPAN1.</li>
+        <li>There are no other SPANDEF statements defined in the span table that match
+the resource name.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note:</b> If a CHARVAR field has a zero (0) length, it is considered to be null.
+MyName, DisplayResourceName, and UserSpanName are all CHARVAR fields.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 1: </b>If DisplayResourceName and UserSpanName are both null, the
+MyName field determines span authorization for the resource. For example, a
+monitorable resource in RODM has a MyName value of SYSPLEX.PLEX1.RALXT1. The DisplayResourceName and UserSpanName are null. The following statement
+is defined in the NetView span table:</p>
+        <li>SPANDEF SPAN=SPAN1,RESOURCE=SYSPLEX.PLEX1.RALXT1;</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Thus, an operator with span SPAN1 started can display resource
+SYSPLEX.PLEX1.RALXT1 in a view.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 2:</b> If UserSpanName is null and DisplayResourceName has a value (in
+other words, DisplayResourceName is not null), the DisplayResourceName field
+determines span authorization for the resource. For example, a monitorable</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;resource in RODM has a MyName value of SYSPLEX.PLEX1.RALXT1 and a
+DisplayResourceName value of RALXT1. The UserSpanName is null. The following
+statement is defined in the NetView span table:</p>
+        <li>SPANDEF SPAN=SPAN1,RESOURCE=RALXT1;</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An operator with span SPAN1 started can display this resource in a view. Because
+DisplayResourceName is not null and the resource is not a shadow object, the
+DisplayResourceName field determines span authorization./p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;In this situation, it is useful to use a wildcard in the resource definition. If the
+statement is defined in the NetView span table instead of the previous statements,
+an operator with span SPAN1 started can display this resource whether or not the
+DisplayResourceName value is RALXT1. If the DisplayResourceName is null, the
+MyName value of SYSPLEX.PLEX1.RALXT1 is used to determine span authorization.
+For example:</p>
+        <li>SPANDEF SPAN=SPAN1,RESOURCE=*RALXT1;</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 3:</b> The DisplayResourceName is used to create the resource names
+displayed in views. While the DisplayResourceName value can be useful to
+describe resources displayed within views, it might not be useful when
+determining span authorization. This value can be overridden by setting the
+UserSpanName field. The DisplayResourceName is still displayed in views, but the
+UserSpanName value is used for span authorization.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;For example, a monitorable resource in RODM has:</p>
+        <li>A MyName value of SYSPLEX.PLEX1.RALXT1</li>
+        <li>A DisplayResourceName value of RALXT1</li>
+        <li>A UserSpanName value of BUILDING500.RALXT1</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;In this example, the following statement is defined in the NetView span table:</p>
+        <li>SPANDEF SPAN=SPAN1,RESOURCE=BUILDING500.*;</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An operator with span SPAN1 started can display resource SYSPLEX.PLEX1.RALXT1
+in a view.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Now suppose one of the following statements was defined in the NetView span
+table instead of the previous statement:</p>
+        <li>SPANDEF SPAN=SPAN1,RESOURCE=SYSPLEX.PLEX1.RALXT1;</li>
+        <i>SPANDEF SPAN=SPAN1,RESOURCE=RALXT1;</i>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;In this case, the operator is denied span authorization to the resource. Because
+UserSpanName has a value, it is used to determine span authorization for the
+resource. DisplayResourceName and MyName are not used to determine span
+authorization when UserSpanName has a value.</p>
+        <h2>Helpful Hints</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Occasionally, your resource, view, and span definitions do not yield the results you
+expect. The following sections describe some helpful hints that you can use in
+debugging unexpected conditions.</p>
+        <h2>No Views in the View List Are in the Operator's Span-of-Control</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If span-of-control is applied to views at the view level, all views are span checked
+before they are opened and in most cases, before they are put in a view list. If none of the views in the view list are in the operator's span-of-control, depending
+on the NGMFVSPN value, an informational message is issued that indicates why a
+view list is not returned.</p>
+        <h2>No Resource in the View Is in the Operator's Span-of-Control</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If span-of-control is applied to views at the resource level, all resources in a view
+are span checked before the view is opened. If none of the resources in the view
+are in the operator's span-of-control, an informational message is issued that
+indicates why the view is not opened.</p>
+        <h2>Selected Object Is Not in the Operator's Span-of-Control</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If a locate resource is requested for a resource that is not in the operator's
+span-of-control, an informational message is issued that indicates why a view is
+not opened.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Similarly, if views (such as, more detail views) are requested for a selected resource
+in an open view but that resource is no longer in the operator's span-of-control, an
+informational message is issued that indicates why the view is not opened. This
+situation can occur only when one of the following conditions is true:</p>
+        <li>The operator stopped the span to which the resource had been defined in the
+NetView span table.</li>
+        <li>The NetView span table was changed (and subsequently refreshed) such that the
+resource is no longer defined to a span that the operator has started.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Resources are not removed from open views when the NetView span table is
+changed or because spans are started or stopped. These changes are made when
+the open view is refreshed.</p>
+        <h3>Changing the NGMFVSPN Attribute</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The NGMFVSPN attribute that is assigned in the profile of the NetView
+management console operator remains in effect for the duration of the session of
+that operator. A changed NGMFVSPN attribute is retrieved only if the NetView
+operator signs off and signs back on with the new NGMFVSPN attribute and the
+NetView management console operator signs off and signs back on after the
+NetView operator is signed back on.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Because of this restriction, a change to the NGMFVSPN attribute does not affect
+open NetView management console views. All NetView management console
+views are refreshed after the operator signs back on.</p>
+        <h3>RACF Is Used for RODM Security</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If you are using RACF for RODM security, ensure that the NetView domain name
+is defined to RACF and has a minimum of RODM security level 2. If these security
+requirements are not satisfied, RODM queries can fail, resulting in span
+authorization errors.</p>
+        <hr style="border-top: 2px solid black">
+        <h2>Applying Span-of-Control to Set and Clear Operator Status</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Span of control is applied to the following subset of Set operator status and Clear
+operator status actions:</p>
+        <li>Marker</li>
+        <li>Suspended, manually clear</li>
+        <li>Suspended, automatically clear</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If the operator has an access level of UPDATE(U) to a span-of-control, a marker or
+suspend action for a selected resource in the span is completed and the operator</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;status is set or cleared as requested by the operator. An access level of UPDATE(U)
+is required for marker and suspend actions for resources in a span-of-control.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If the operator has only an access level of READ(R) to a span-of-control containing
+the resource or if the resource is not in a span accessed by the operator, the marker
+or suspend action for the selected resource is ignored.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Marker or suspend actions against VTAM resources, including shadow objects, is
+span checked similar to the way they are for commands. If you are using the
+NetView span table, span checking for marker and suspend actions for RODM
+objects utilizes the hierarchy of the UserSpanName, DisplayResourceName and
+MyName fields.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Marker and suspend actions are not optional for span-of-Control. If span-of-control
+is implemented, an active span for an operator must contain UPDATE(U) access
+for the resource receiving the marker or suspend action.</p>
+        <li>For more information about the hierarchy of the UserSpanName,
+DisplayResourceName, and MyName fields, see “Resources” on page 116.</li>
+        <li>For more information about using spans to protect resources, see the IBM Tivoli
+NetView for z/OS Security Reference.</li>
+        <hr style="border-top: 2px solid black">
+        <h2>Applying Policy to Views</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp; Using NMCSTATUS policy definitions, you can define time schedules for resources
+in NetView management console views. With these schedules, policy is applied to
+views to specify when the displayable status of one or more resources in a view is
+disabled at the NetView management console or when one or more resources in a
+view is suspended from aggregation.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When your NMCSTATUS policy definitions are processed, CHRON timers are set
+to indicate when the policy is activated and deactivated. Each policy definition
+specifies a group of resources and actions to be applied to that group of resources
+during the specified time period.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When the beginning timer pops, the policy is activated. The NMCSTATUS policy
+code creates a RODM object in the Aggregate_Collection_Class to represent the
+policy definition. This triggers the RODM Collection Manager to create an
+aggregate object in the GMFHS_Aggregate_Objects_Class to represent the collection
+of resource objects based on the RODM field values of the object in the
+Aggregate_Collection_Class. Resources belonging to the collection are linked to the
+aggregate by way of the AggregateParent/AggregateChild and
+ComposedOfLogical/IsPartOf fields. The actions specified on the policy definition
+are applied to all resources in the collection.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When the ending timer pops, the policy is deactivated. The NMCSTATUS policy
+code deletes the RODM object from the Aggregate_Collection_Class. This triggers
+the RODM Collection Manager to delete the corresponding aggregate object in the
+GMFHS_Aggregate_Objects_Class representing the collection of resource objects
+belonging to the policy. Any resource object matching the collection is removed
+from the collection. Status updates are resumed and suspended resources are
+unsuspended based on the policy definition. If the resource object belongs to
+another active policy it is not removed from the collection. See “Resources
+Belonging to Multiple Policies” on page 123 for more information.</p>
+        <h2>Representing Policy Definitions in RODM</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Each active policy is represented in RODM by an object in the
+Aggregate_Collection_Class. Values from the NMCSTATUS keywords are used to
+set RODM fields on the object. The following list shows the key fields on the object
+and how the value is derived from the policy definition.</p>
+        <b>MyName</b>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The name of the object is created by concatenating the timer handle of the
+CHRON timer that popped, to indicate the beginning of the policy, with
+the name of the policy definition. For example, if timer handle NMC1 is
+the beginning timer for policy definition POLICY1, the MyName field of
+the RODM object is set to NMC1POLICY1</p>
+        <b>CollectionSpec1</b>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The RODM Collection Manager language that specifies the collection of
+resources is generated from the CLASS, MYNAME and RESOURCE
+keywords or the BLDVIEWSSPEC keyword or the COLLECTIONSPEC
+keyword. CollectionSpec1 contains 32K of data. If the value is greater than
+32K, the additional data is stored in RODM fields CollectionSpec2,
+CollectionSpec3, or CollectionSpec4, as needed. Each of these fields also
+contain 32K of data and are defined in the GMFHS data model
+(DUIFSTRC).</p>
+        <b>RequestFlags</b>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Indicates which actions apply to the policy. If keyword
+SUSPENDAGG=YES is specified, the action suspends all the resources in
+the collection. If keyword STOPUPDATE=YES is specified, the action
+disables system status updates at the NetView management console for
+resources in the collection. Both actions can be applied to the same
+collection of resources.</p>
+        <b>CollectionLocateName</b>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Value of 'NMCSTATUS' is added to this indexed list field to indicate the
+object represents a policy definition.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 1: </b>At 6:00 a.m., a RODM object is created in the
+Aggregate_Collection_Class with field values as shown in this example. The timer
+handle is NMC1.</p>
+        <small style="margin-left: 30px;">Policy definition:&nbsp;&nbsp;&nbsp;&nbsp;</small>
+        <small style="margin-left: 30px;"><p>NMCSTATUS POLICY1</p></small>
+        <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+        <small style="margin-left: 30px;"><p>TIME=(06.00.00,18.00.00)</p></small>
+        <small style="margin-left: 30px;"><p>STOPUPDATE=YES</p></small>
+        <small style="margin-left: 30px;">RODM field value&nbsp;&nbsp;&nbsp;&nbsp;</small>
+        <small style="margin-left: 30px;"><p>MyName=’NMC1POLICY1’</p></small>
+         <small style="margin-left: 30px;"><p>CollectionSpec1=’|GMFHS_Managed_Real_Objects_Class|MyName|*|.CONTAINS.’</p></small>
+        <small style="margin-left: 30px;"><p>RequestFlags=’80000000’x</p></small>
+          <small style="margin-left: 30px;"><p>CollectionLocateName=’NMCSTATUS’</p></small>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 2: </b>At 6:00 a.m., a RODM object is created in the
+Aggregate_Collection_Class with field values as shown in this example. The timer
+handle is NMC1</p>
+        <small style="margin-left: 30px;">Policy definition:&nbsp;&nbsp;&nbsp;&nbsp;</small>
+        <small style="margin-left: 30px;"><p>NMCSTATUS POLICY2</p></small>
+        <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+        <small style="margin-left: 30px;"><p>RESOURCE=(RALXT1)/p></small>
+        <small style="margin-left: 30px;"><p>TIME=(06.00.00,18.00.00)</p></small>
+        <small style="margin-left: 30px;"><p>STOPUPDATE=YES</p></small>
+        <small style="margin-left: 30px;"><p>SUSPENDAGG=YES</p></small>
+        <small style="margin-left: 30px;">RODM field value&nbsp;&nbsp;&nbsp;&nbsp;</small>
+        <small style="margin-left: 30px;"><p>MyName=’NMC1POLICY2’</p></small>
+        <small style="margin-left: 30px;"><p>CollectionSpec1=’|GMFHS_Managed_Real_Objects_Class|</p></small>
+        <small style="margin-left: 30px;"><p>DisplayResourceName|RALXT1|.EQ.’</p></small>
+        <small style="margin-left: 30px;"><p>RequestFlags=’C0000000’x</p></small>
+        <small style="margin-left: 30px;"><p>CollectionLocateName=’NMCSTATUS’</p></small>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 3: </b>At 6:00 a.m., a RODM object is created in the
+Aggregate_Collection_Class with field values as shown in this example. The timer
+handle is NMC1.</p>
+        <small style="margin-left: 30px;">Policy definition:&nbsp;&nbsp;&nbsp;&nbsp;</small>
+           <small style="margin-left: 30px;"><p>NMCSTATUS POLICY3</p></small>
+           <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+            <small style="margin-left: 30px;"><p>MYNAME=(SYSPLEX*</p></small>
+            <small style="margin-left: 30px;"><p>TIME=(06.00.00,18.00.00)</p></small>
+         <small style="margin-left: 30px;"><p>SUSPENDAGG=YES</p></small>
+          <small style="margin-left: 30px;">RODM field value&nbsp;&nbsp;&nbsp;&nbsp;</small>
+        <small style="margin-left: 30px;"><p>MyName=’NMC1POLICY3’</p></small>
+        <small style="margin-left: 30px;"><p>CollectionSpec1=’|GMFHS_Managed_Real_Objects_Class|MyName|SYSPLEX*|.CONTAINS.’</p></small>
+        <small style="margin-left: 30px;"><p>RequestFlags=’40000000’x</p></small>
+        <small style="margin-left: 30px;"><p>CollectionLocateName=’NMCSTATUS’</p></small>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 4:</b> At 6:00 a.m., a RODM object is created in the
+Aggregate_Collection_Class with field values as shown in this example. The timer
+handle is NMC1.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;FILE1 contains the following BLDVIEWS statements:</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Majnode=NETA.A01M,</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Type=XCA</p>
+        <small style="margin-left: 30px;">Policy definition:&nbsp;&nbsp;&nbsp;&nbsp;</small>
+         <small style="margin-left: 30px;"><p>NMCSTATUS POLICY4</p></small>
+        <small style="margin-left: 30px;"><p>BLDVIEWSSPEC=(QSAMDSN,USER.INIT(FILE1))</p></small>
+         <small style="margin-left: 30px;"><p>TIME=(06.00.00,18.00.00)</p></small>
+         <small style="margin-left: 30px;"><p>STOPUPDATE=YES</p></small>
+        <small style="margin-left: 30px;">RODM field value&nbsp;&nbsp;&nbsp;&nbsp;</small>
+        <small style="margin-left: 30px;"><p>MyName=’NMC1POLICY4’</p></small>
+        <small style="margin-left: 30px;"><p>CollectionSpec1=’|1.3.18.0.0.3315.8.3.7|MyName|1.3.18.0.2.4.6=*;<br>                                                                                  1.3.18.0.0.2032=*;1.3.18.0.0.2032=XCA.NETA.A01M|.CONTAINS.’</p></small>
+        <small style="margin-left: 30px;"><p>RequestFlags=’80000000’x</p></small>
+        <small style="margin-left: 30px;"><p>CollectionLocateName=’NMCSTATUS’</p></small>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 5:</b> At 6:00 a.m., a RODM object is created in the
+Aggregate_Collection_Class with field values as shown in this example. The timer
+handle is NMC1</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;DDFFILE2 is a data definition file allocated with comman</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;ALLOCATE FILE(DDFFILE2) DATASET(USER.INIT(FILE2)) SHR</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;DDFFILE2 contains the following BLDVIEWS statements:</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;NONSNA=*</p><br><br>
+        <small style="margin-left: 30px;">Policy definition:&nbsp;&nbsp;&nbsp;&nbsp;</small>
+         <small style="margin-left: 30px;"><p>NMCSTATUS POLICY5</p></small>
+        <small style="margin-left: 30px;"><p>BLDVIEWSSPEC=(QSAMDD,DDFFILE2)</p></small>
+        <small style="margin-left: 30px;"><p>TIME=(06.00.00,18.00.00)</p></small>
+         <small style="margin-left: 30px;"><p>STOPUPDATE=YES</p></small>
+        <small style="margin-left: 30px;">RODM field value&nbsp;&nbsp;&nbsp;&nbsp;</small>
+         <small style="margin-left: 30px;"><p>MyName=’NMC1POLICY5’</p></small>
+         <small style="margin-left: 30px;"><p>CollectionSpec1=’|GMFHS_Managed_Real_Objects_Class|MyName|SYSPLEX*|.CONTAINS.’</p></small>
+         <small style="margin-left: 30px;"><p>RequestFlags=’80000000’x</p></small>
+        <small style="margin-left: 30px;"><p>CollectionLocateName=’NMCSTATUS’</p></small>
+        <h2>Resources Belonging to Multiple Policies</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;A resource can be defined to multiple policy definitions. A count of the number of
+active policies the resource belongs to is saved in a counter field. Each displayable
+resource object has two counter fields defined:</p>
+        <b>PolicyCtrSU</b>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Represents the number of active policies this resource belongs to where the
+action applied to the resource is stop updates.</p>
+        <b>PolicyCtrSA</b>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Represents the number of active policies this resource belongs to where the
+action applied to the resource is suspend aggregation.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;These fields ensure that actions are not removed from a resource belonging to
+other active policies. When a resource is removed from a policy, the applicable
+counter is decreased by one. When the counter is zero, the action is removed from
+the resource. If the counter is not zero, the resource belongs to another active
+policy and the action remains in place.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 1:</b> POLICY1 specifies status updates sh not be sent to resource ABC on
+Saturdays. POLICY2 specifies status updates sh not be sent to real resources
+beginning with the letter A, i.e. RESOURCE=A* from 8 a.m. to 10 a.m. every day, includi</p>
+        <small style="margin-left: 30px;">Policy definition:&nbsp;&nbsp;&nbsp;&nbsp;</small>
+        <small style="margin-left: 30px;"><p>NMCSTATUS POLICY1</p></small>
+        <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+        <small style="margin-left: 30px;"><p>RESOURCE=(ABC)</p></small>
+        <small style="margin-left: 30px;"><p>DAYOFWEEK=(SAT)</p></small>
+        <small style="margin-left: 30px;"><p>TIME=(00.00.00,23.59.59)</p></small>
+        <small style="margin-left: 30px;"><p>STOPUPDATE=YES</p></small>
+        <small style="margin-left: 30px;"><p>NMCSTATUS POLICY2</p></small>
+        <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+        <small style="margin-left: 30px;"><p>RESOURCE=(A*)</p></small>
+        <small style="margin-left: 30px;"><p>TIME=(08.00.00,10.00.00)</p></small>
+         <small style="margin-left: 30px;"><p>STOPUPDATE=YES</p></small>
+        <ol><li>Saturday at 12:00 a.m., a timer pops and POLICY1 is activated. The
+PolicyCtrSU field of resource ABC is increased by one. PolicyCtrSU=1 for
+resource ABC and status updates are not sent to the resource.<li>Saturday at 8 a.m., a timer pops and POLICY2 is activated. The PolicyCtrSU
+field of all real resources A* in the collection is increased by one. PolicyCtrSU=2
+for resource ABC because the resource belongs to both collections.
+PolicyCtrSU=1 for the resources belonging only to the POLICY2 collection.
+Status updates are not sent for any resource whose PolicyCtrSU field is not
+zero.<li>Saturday at 10 a.m., a timer pops and POLICY2 is deactivated. The PolicyCtrSU
+field of all real resources A* in the collection is decreased by one.
+PolicyCtrSU=1 for resource ABC since the resource still belongs to the POLICY1
+collection. PolicyCtrSU=0 for the resources belonging only to the POLICY2
+collection. Status updates are sent for these resources but not for resource ABC.<li>Saturday at 11:59 p.m., a timer pops and POLICY1 is deactivated. The
+PolicyCtrSU field of resource ABC is decreased by one. PolicyCtrSU=0 for
+resource ABC. Status updates are now sent.</li></ol>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 2:</b> POLICY1 specifies aggregation is suspended for resource ABC on
+Saturdays. POLICY2 specifies aggregation is suspended for real resources
+beginning with the letter A, i.e. RESOURCE=A* from 8 a.m. to 10 a.m. every day, includin</p>
+        <small style="margin-left: 30px;">Policy definition:&nbsp;&nbsp;&nbsp;&nbsp;</small>
+        <small style="margin-left: 30px;"><p>NMCSTATUS POLICY1</p></small>
+        <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+         <small style="margin-left: 30px;"><p>RESOURCE=(ABC)</p></small>
+        <small style="margin-left: 30px;"><p>DAYOFWEEK=(SAT)</p></small>
+         <small style="margin-left: 30px;"><p>TIME=(00.00.00,23.59.59)</p></small>
+         <small style="margin-left: 30px;"><p>STOPUPDATE=YES</p></small>
+        <small style="margin-left: 30px;"><p>NMCSTATUS POLICY2</p></small>
+        <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+          <small style="margin-left: 30px;"><p>RESOURCE=(A*)</p></small>
+         <small style="margin-left: 30px;"><p>TIME=(08.00.00,10.00.00)</p></small>
+         <small style="margin-left: 30px;"><p>STOPUPDATE=YES</p></small>
+        <ol><li>Saturday at 12:00 a.m., a timer pops and POLICY1 is activated. The
+PolicyCtrSA field of resource ABC is increased by one. PolicyCtrSA=1 for
+resource ABC and aggregation is suspended for resource ABC.<li>Saturday at 8 a.m., a timer pops and POLICY2 is activated. The PolicyCtrSA
+field of all real resources A* in the collection is increased by one. PolicyCtrSA=2
+for resource ABC because the resource belongs to both collections.
+PolicyCtrSA=1 for the resources belonging only to the POLICY2 collection.
+Aggregation is suspended for any resource whose PolicyCtrSA field is not zero.</li><li>Saturday at 10 a.m., a timer pops and POLICY2 is deactivated. The PolicyCtrSA
+field of all real resources A* in the collection is decreased by one.
+PolicyCtrSA=1 for resource ABC since the resource still belongs to the POLICY1
+collection. PolicyCtrSA=0 for the resources belonging only to the POLICY2
+collection. Aggregation is no longer suspended for these resources but
+continues to be suspended for resource ABC.</li><li>Saturday at 11:59 p.m., a timer pops and POLICY1 is deactivated. The
+PolicyCtrSA field of resource ABC is decreased by one. PolicyCtrSA=0 for
+resource ABC. The resource is no longer suspended from aggregation.</li></ol>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 3:</b> A NetView management console operator can resume aggregation for a
+resource that is currently suspended from aggregation by a policy. Setting or
+clearing the suspend flag from NetView management console overrides any policy
+that is active. However, the PolicyCtrSA field is increased and decreased only
+when the resource is added or removed from a collection. In this example,
+POLICY1 specifies that resource PC1 is suspended from aggregation on Saturdays.
+POLICY2 specifies that resource PC1 is suspended from aggregation from 8 a.m. to
+10 a.m. every day, including Saturdays. An operator can change the value of the
+suspend flag of a resource; however, policy continues to update the suspend flag
+when policies are activated and deactivated.</p>
+          <small style="margin-left: 30px;">Policy definition:&nbsp;&nbsp;&nbsp;&nbsp;</small>
+          <small style="margin-left: 30px;"><p>NMCSTATUS POLICY1</p></small>
+          <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+          <small style="margin-left: 30px;"><p>RESOURCE=(PC1)</p></small>
+          <small style="margin-left: 30px;"><p>DAYOFWEEK=(SAT)</p></small>
+          <small style="margin-left: 30px;"><p>TIME=(00.00.00,23.59.59)</p></small>
+         <small style="margin-left: 30px;"><p>SUSPENDAGG=YES</p></small>
+         <small style="margin-left: 30px;"><p>NMCSTATUS POLICY2</p></small>
+         <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+          <small style="margin-left: 30px;"><p>RESOURCE=(PC1)</p></small>
+         <small style="margin-left: 30px;"><p>TIME=(08.00.00,10.00.00)</p></small>
+         <small style="margin-left: 30px;"><p>SUSPENDAGG=YES</p></small>
+        <ol><li>Saturday at 12:00 a.m., a timer pops and POLICY1 is activated. The
+PolicyCtrSA field of resource PC1 is increased by one. PolicyCtrSA=1 for
+resource PC1 and aggregation is suspended for resource PC1.<li>Saturday at 8 a.m., a timer pops and POLICY2 is activated. The PolicyCtrSA
+field of resource PC1 is increased by one. PolicyCtrSA=2 for resource PC1
+because the resource belongs to both collections. The resource remains
+suspended from aggregation.</li><li>Saturday at 10 a.m., a timer pops and POLICY2 is deactivated. The PolicyCtrSA
+field of resource PC1 is decreased by one. PolicyCtrSA=1 for resource PC1
+because the resource still belongs to the POLICY1 collection. The resource
+remains suspended from aggregation.
+</li><li>Saturday at 3 p.m., a NetView management console operator clears the suspend
+flag for resource PC1. The PolicyCtrSA field remains unchanged (it is still equal
+to 1) but the resource is no longer suspended from aggregation.</li><li>Saturday at 11:59:59 p.m., a timer pops and POLICY1 is deactivated. The
+PolicyCtrSA field of resource ABC is decreased by one. PolicyCtrSA=0 for
+resource ABC. In this example, the suspend flag has already been cleared but if
+it hadn't, the suspend flag is cleared and resource PC1 is no longer suspended
+from aggregation.</li></ol>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Although a NetView management console operator can change the value of the
+Although a NetView management console operator can change the value of the
+suspend flag of a resource, policy continues to update the suspend flag when
+policies are activated and deactivated.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example 4:</b> A policy can specify that a resource is suspended from aggregation and
+does not receive status. In this situation, both counters are used to keep track of
+the number of active policies the resource belongs to for each action. In this
+example, POLICY1 specifies that status updates are not sent to resource PC1 on
+Saturdays. POLICY2 specifies that resource PC1 is suspended from aggregation on
+Saturdays from 8 a.m. to 5 p.m. POLICY3 specifies that status updates are not sent
+to resource PC1 and resource PC1 is suspended from aggregation from 2 p.m. to 4
+p.m. on Saturdays.</p>
+         <small style="margin-left: 30px;">Policy definition:&nbsp;&nbsp;&nbsp;&nbsp;</small>
+         <small style="margin-left: 30px;"><p>NMCSTATUS POLICY1</p></small>
+        <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+          <small style="margin-left: 30px;"><p>RESOURCE=(PC1)</p></small>
+         <small style="margin-left: 30px;"><p>DAYOFWEEK=(SAT)</p></small>
+          <small style="margin-left: 30px;"><p>TIME=(00.00.00,23.59.59)</p></small>
+        <small style="margin-left: 30px;"><p>STOPUPDATE=YES</p></small>
+         <small style="margin-left: 30px;"><p>NMCSTATUS POLICY2</p></small>
+        <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+          <small style="margin-left: 30px;"><p>RESOURCE=(PC1)</p></small>
+        <small style="margin-left: 30px;"><p>DAYOFWEEK=(SAT)</p></small>
+         <small style="margin-left: 30px;"><p>TIME=(08.00.00,17.00.00)</p></small>
+        <small style="margin-left: 30px;"><p>SUSPENDAGG=YES</p></small>
+           <small style="margin-left: 30px;"><p>NMCSTATUS POLICY3</p></small>
+        <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Managed_Real_Objects_Class)</p></small>
+         <small style="margin-left: 30px;"><p>RESOURCE=(PC1)</p></small>
+        <small style="margin-left: 30px;"><p>DAYOFWEEK=(SAT)</p></small>
+        <small style="margin-left: 30px;"><p>TIME=(14.00.00,16.00.00)</p></small>
+         <small style="margin-left: 30px;"><p>TIME=(14.00.00,16.00.00)</p></small>
+         <small style="margin-left: 30px;"><p>STOPUPDATE=YES</p></small>
+        <small style="margin-left: 30px;"><p>SUSPENDAGG=YES</p></small>
+        <ol><li>Saturday at 12:00 a.m., a timer pops and POLICY1 is activated. The
+PolicyCtrSU field of resource PC1 is increased by one. Counter field values are
+PolicyCtrSA=0 and PolicyCtrSU=1. Status updates are no longer sent to
+resource PC1.</li><li>Saturday at 8 a.m., a timer pops and POLICY2 is activated. The PolicyCtrSA
+field of resource PC1 is increased by one. Counter field values are
+PolicyCtrSA=1 and PolicyCtrSU=1. Status updates are still not sent to resource
+PC1 and the resource is also suspended from aggregation.</li><li>Saturday at 2 p.m., a timer pops and POLICY3 is activated. Both counter fields
+are increased by one. Counter field values are PolicyCtrSA=2 and
+PolicyCtrSU=2. Status updates are still not sent to resource PC1 and the
+resource remains suspended from aggregation.</li><li>Saturday at 4 p.m., a timer pops and POLICY3 is deactivated. Both counter
+fields are decreased by one. Counter field values are PolicyCtrSA=1 and
+PolicyCtrSU=1. Status updates are still not sent to resource PC1 and the
+resource remains suspended from aggregation.</li><li>Saturday at 5 p.m., a timer pops and POLICY2 is deactivated. The PolicyCtrSA
+field of resource PC1 is decreased by one. Counter field values are
+PolicyCtrSA=0 and PolicyCtrSU=1. Status updates are still not sent to resource
+PC1. The resource is no longer suspended from aggregation.</li><li>Saturday at 11:59:59 p.m., a timer pops and POLICY1 is deactivated. The
+PolicyCtrSU field of resource ABC is decreased by one. Counter field values are
+PolicyCtrSA=0 and PolicyCtrSU=0. Status updates are now sent to resource
+PC1.</li></ol>
+        <h3>Resources Suspended from Aggregation Due to Policy</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When a real resource is suspended from aggregation because of a scheduled policy
+definition, the resource is added to a collection representing the policy and the
+following actions occur in GMFHS:</p>
+        <li>The suspend flag of the resource is set.</li>
+        <li> The suspend flag note of the resource is set to Scheduled.</li>
+        <li>One is added to the PolicyCtrSA of the resource.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When aggregation is resumed for a real resource because of a policy definition, the
+resource is removed from the collection representing the policy and the following
+actions occur in GMFHS:</p>
+        <li>The suspend flag of the resource is cleared.</li>
+        <li>The suspend flag note of the resource is cleared.</li>
+        <li>One is subtracted from the PolicyCtrSA of the resource.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The suspend flag is cleared only if the value of the note is "Scheduled" and was set
+by operator ID GMFHS.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If a policy definition specifies SUSPENDAGG=YES and STOPUPDATE=NO, the
+affected resources do not change to the Scheduled system status. The resources are
+suspended from aggregation but continue to receive system status updates.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;A NetView management console operator can override the setting of the suspend
+flag. See “Resources Belonging to Multiple Policies” on page 123 for more
+information.</p>
+        <h2>Suspending Aggregation Using an Aggregate</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When an aggregate is suspended from aggregation, the aggregate itself is not
+suspended from aggregation. Instead, all of the real objects currently reporting
+status to the aggregate are suspended from aggregation. The following actions
+occur in GMFHS:</p>
+        <li>The suspend flag of the real resource is set.</li>
+        <li>The suspend flag of the real resource note is set to Scheduled.</li>
+        <li>One is added to the PolicyCtrSA of the real resource.</li>
+        <li>The suspended flag of the aggregate child is set.</li>
+        <li>The suspended flag note of the aggregate child is set to Scheduled.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The child suspended flag is also set for any aggregates in the AggregateChild/
+AggregateParent path between the aggregate affected by policy and the real
+resources reporting status to that aggregate. However the child suspended flag
+note field is not set to Scheduled for these intermediate aggregate resources.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When aggregation is resumed for an aggregate, the aggregate itself is not resumed.
+Instead aggregation is resumed for all of the real objects currently reporting status
+to the aggregate. The following actions occur in GMFHS:</p>
+        <li>The suspend flag of the real resource is cleared</li>
+        <li>The suspend flag of the real resource note is cleared.</li>
+        <li>One is subtracted from the PolicyCtrSA of the real resource.</li>
+        <li>The suspended flag of the aggregate child is cleared.</li>
+        <li>The suspended flag note of the aggregate child is cleared.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Example: </b>AGGPOLICY specifies aggregation is suspended for aggregate resource
+AGG1 on Saturdays.</p>
+        <small style="margin-left: 30px;">Policy definition:&nbsp;&nbsp;&nbsp;&nbsp;</small>
+        <small style="margin-left: 30px;"><p>NMCSTATUS AGGPOLICY</p></small>
+        <small style="margin-left: 30px;"><p>CLASS=(GMFHS_Aggregate_Objects_Class)</p></small>
+         <small style="margin-left: 30px;"><p>RESOURCE=(AGG1)</p></small>
+        <small style="margin-left: 30px;"><p>DAYOFWEEK=(SAT)</p></small>
+         <small style="margin-left: 30px;"><p>TIME=(00.00.00,23.59.59)</p></small>
+          <small style="margin-left: 30px;"><p>SUSPENDAGG=YES</p></small>
+        <ol><li>Saturday at 12:00 a.m., a timer pops and AGGPOLICY is activated. Aggregate
+resource AGG1 is added to the collection and the action (suspending
+aggregation) is applied to the resource. Suspending an aggregate from
+aggregation is a shortcut request to suspend all real resources currently
+reporting status to the aggregate from aggregation. The PolicyCtrSA field of
+each real resource is increased by one. The PolicyCtrSA field of the aggregate is
+not updated because the aggregate itself is not suspended.<li>Saturday at 11:59:59 p.m., a timer pops and AGGPOLICY is deactivated.
+Aggregate resource AGG1 is removed from the collection and the action
+(suspending aggregation) is removed from each resource. Unsuspending an
+aggregate from aggregation is a shortcut request to resume aggregation for all
+real resources currently reporting status to the aggregate. The PolicyCtrSA field
+of each real resource is decreased by one. The PolicyCtrSA field of the
+aggregate is not updated because the aggregate itself was never suspended and
+can not be unsuspended.</li></ol>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If additional real resources begin to report status to aggregate AGG1 after the
+policy is activated, they are not suspended by the policy definition AGGPOLICY. Actions can only be applied to a member of the collection. The real resources are
+suspended and resumed only because of an action to aggregate AGG1, a member
+of the collection.</p>
+        <h3>System Status Updates No Longer Sent to Resources Due to
+Policy</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When system status updates occur, the DisplayStatus field of the resource is
+updated with the new status. A change to the DisplayStatus field triggers an
+update to the resource if it is displayed in an open NetView management console
+view.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When system status updates are no longer sent to a resource because of a
+scheduled policy definition, the resource is added to a collection representing the
+policy. For the case where this is the only active policy the resource belongs to, the
+following actions occur in GMFHS:</p>
+        <li>The PolicyDisplayStatus field is set to the current value of the DisplayStatus
+field.</li>
+        <li>The DisplayStatus field is set to Scheduled.</li>
+        <li>The system status update sends Scheduled to the resource if it is displayed in an
+open NetView management console view.</li>
+        <li>One is added to the PolicyCtrSU field of the resource.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Any system status updates received for this resource while it belongs to an active
+policy are saved in the PolicyDisplayStatus field rather than the DisplayStatus
+field. Thus system status updates are not sent to NetView management console.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When system status updates are resumed, the resource is removed from the
+collection representing the policy. The following actions occur in GMFHS.</p>
+        <li>One is subtracted from the PolicyCtrSU field of the resource.</li>
+        <li>If the PolicyCtrSU field=0, then the DisplayStatus field is set to the current value
+of the PolicyDisplayStatus field. This drives a NetView management console
+update to change the resource from Scheduled status to its current system status.</li>
+        <li>If the PolicyCtrSU field is greater than zero, the DisplayStatus field remains
+Scheduled and any system status updates are saved in the PolicyDisplayStatus
+field. No update is sent while the resource belongs to a collection representing a
+policy where STOPUPDATE=YES was specified.</li>
+        <h3>Additional Information</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;See the IBM Tivoli NetView for z/OS Administration Reference for information about
+creating and loading a policy file containing NMCSTATUS policy definitions.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;See IBM Tivoli NetView for z/OS Installation: Configuring Graphical Components for
+information about the tasks necessary to process NMCSTATUS policy definitions.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;See the IBM Tivoli NetView for z/OS Data Model Reference for information about
+specific RODM fields.</p>
+         <hr style="border-top: 2px solid black">
+        <h3>Aggregation Concepts</h3>
+        <p>This section describes aggregation for network resources. The topology of network
+resources is managed by RODM. Network resources, including aggregate
+resources, are displayed in NetView management console views, based on
+information gathered by GMFHS.</p>
+        <h3>Aggregation Overview</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Aggregation is the process of creating, connecting, and updating the status of
+aggregate objects. Aggregate objects represent a collection of real objects. A real object
+represents an actual resource. Aggregate objects do not correspond to real, physical
+devices. Aggregate objects provide two types of information about the real objects
+associated with them:</p>
+        <li>Connectivity information for fast path to failing resource views. For more
+information about these views, see “NMC Locate Failing Resources Views” on
+page 92.</li>
+        <li>A single DisplayStatus (also referred to as status) representation for the group of
+real objects based on a set of rules.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Both aggregate and real objects can exist under any class within RODM. GMFHS
+uses the ResourceTraits field to determine whether an object is an aggregate or real
+object. The ResourceTraits field is of data type INDEXLIST and can have multiple
+values; all values are padded to eight characters with blanks. The GMFHS, SNA
+topology manager, and MultiSystem Manager data models set the ResourceTraits
+field at the class level for both real and aggregate classes. When an aggregate
+object is created, the value AGG is set in the ResourceTraits field to indicate that
+the object is an aggregate object. Similarly, when a real object is created, the value
+REAL is set in the ResourceTraits field to indicate that the object is a real object. An
+object cannot have both values in the ResourceTraits field; that is, it cannot be both
+a real and an aggregate object.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;In Figure 31 on page 130, objects labeled A represent aggregate objects and objects
+labeled R represent real objects.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The aggregation level of an object is the number of aggregate objects traversed in an
+aggregation path, including the current aggregate object. The aggregation level of
+real objects is always 0. For example, in Figure 31 on page 130, the aggregation
+level of R4 is always 0. The aggregation level of A34 is 2 on the
+R10→A41→A34→A22→A12 path, and it is 1 on the R9→A34→A22→A12 path. The
+aggregation level of A35 is always 1.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;For an object in the aggregation hierarchy that has no aggregate children, an
+aggregation path defines a unique traversal of the aggregation hierarchy using the
+AggregationParent field. The path includes only one object at each level of the
+hierarchy, and continues until the current object in the path has no aggregate
+parents. For example, in Figure 31 on page 130, R8→A32→A21→A12 form an
+aggregation path. R8→A33→A22→A12 form another aggregation path that begins and
+ends with the same objects.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An aggregate child is a real or aggregate object that is linked by the
+AggregationChild field. This link can be either direct (also referred to as
+immediate) or indirect. A direct child is a real or aggregate object that is directly
+linked to the AggregationChild field of an object. An indirect child is a real or
+aggregate object that can be reached by following the chain of AggregationChild
+links through the aggregation hierarchy starting from the direct child of an object.
+For example, in Figure 31 on page 130, the direct children of A21 are R3, R4, A31
+and A32. An indirect child of A12 is R9. The indirect children of A22 are R8, R9,
+R10, R11, R12, R13, and A41.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An aggregate parent is an aggregate object that is linked to an object by the
+AggregationParent field. This link can be either direct (also referred to as
+immediate) or indirect. A direct parent is any aggregate object that is directly
+linked to the AggregationParent field of an object. An indirect parent is an
+aggregate object that can be reached by following the chain of AggregationParent
+links through the aggregation hierarchy starting from the direct parent of an object.
+For example, in Figure 31 on page 130, direct parents of R1 are A11 and A12. The
+direct parent of A34 is A22. An indirect parent of R11 is A12. The indirect parents
+of A41 are A22 and A12.</p>
+        <img src="C:\Users\HP\Pictures\Saved Pictures\i5.png">
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;Figure 31. Aggregation Example Using Real (R) and Aggregate (A) Objects</p>
+        <h2>Creating an Aggregation Hierarchy</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An aggregation hierarchy is the topology of aggregate and underlying real objects.
+The aggregation hierarchy is built using the AggregationParent and
+AggregationChild fields of the objects.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Although real objects are part of an aggregation hierarchy, an aggregation
+hierarchy does not exist until at least one aggregate object is created in RODM.
+Figure 31 is one example of an aggregation hierarchy. An aggregation hierarchy is
+defined by the following rules:</p>
+        <li>For each path in the hierarchy, the least significant child of the path can be
+either a real or an aggregate object. A least significant child is a real or aggregate
+object that has no aggregation children and therefore begins zero or more
+aggregation paths. For example, in Figure 31, R2, R7 and A35 are examples of
+least significant children.</li>
+        <li>For each path in the hierarchy, the most significant parent of the path must be
+an aggregate object. A most significant parent is an aggregate object that has no
+aggregation parents and therefore ends one or more aggregation paths. For
+example, in Figure 31, A11 and A12 are examples of most significant parents. A
+real object can never be the most significant parent because a real object must
+have at least one aggregate parent to be considered part of the aggregation
+hierarchy. For example, in Figure 31, R14 is not part of the aggregation hierarchy
+because it does not have an aggregate parent.</li>
+        <li>A real object cannot be an aggregate parent.</li>
+        <li>There is no restriction on the number of levels in an aggregation hierarchy. The
+number of levels in an aggregation hierarchy is equal to the number of levels in
+the longest aggregation path in the hierarchy.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note:</b>Aggregation priority functions are restricted to 9 levels of aggregation. For
+more information, see “Aggregation Priority” on page 135.</p>
+        <li>An object can be the direct child of more than one aggregate object, and an
+aggregate object can have more than one direct child. R1 is a direct child of both
+A11 and A12. R3, R4, A31 and A32 are direct children of A21.</li>
+        <li>For GMFHS to perform aggregation correctly, there must be no aggregation
+hierarchy loops. An aggregation hierarchy loop exists when an aggregate object is aparent of itself. For example, A12 c not be a child of A33. This results in the path
+A12→A33→A22→A12→A33→A22..., which loops indefinitely.</li>
+        <li>A parent-child relationship can exist between objects on more than one path. For
+each path, the child appears to be a unique object to the parent. For example, in
+Figure 31 on page 130, R8 and A12 belong to the same two aggregation paths:
+R8→A32→A21→A12 and R8→A33→A22→A12. From the perspective of A12, R8 is two
+separate real objects that have identical characteristics.</li>
+        <li>All objects in the aggregation hierarchy need not be interconnected. For example,
+another subset of the aggregation hierarchy can be composed of objects that
+form a hierarchy similar to that shown in Figure 31 on page 130, but with no
+common objects between the two subsets of the hierarchy. The hierarchy subsets
+together form the entire aggregation hierarchy.</li>
+        <h2>Building the Aggregation Hierarchy in RODM</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Objects can be linked to or unlinked from the aggregation hierarchy at any time.
+The aggregation hierarchy is created using two RODM fields: AggregationParent
+and AggregationChild. For a description of these fields, see the IBM Tivoli NetView
+for z/OS Data Model Reference. The fields are of RODM type OBJECTLINKLIST. For
+any object, the AggregationParent field contains links to all of the direct parent
+objects. The AggregationChild field contains links to all of the direct child objects.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;In Figure 32, the AggregationParent field of R2 contains links to two objects, A11
+and A12. The AggregationParent field of A22 contains links to one object, A12. The
+AggregationChild field of A22 contains links to three objects: A33, A34, and A35.</p>
+        <img src="C:\Users\HP\Downloads\i6.png">
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;Legend:</p>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;-------Real link</p>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;Figure 32. Links Between AggregationChild and AggregationParent Fields</p>
+        <p>For GMFHS to perform aggregation correctly, the link or unlink of the
+AggregationParent and AggregationChild fields of two objects must be performed</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;by method DUIFCUAP. RODM does not prevent this operation or issue a warning
+if the operation is done without using the DUIFCUAP method; however, status
+values of all aggregate objects above the child object being linked or unlinked
+cannot be correctly calculated if this method is not used. Method DUIFCUAP also
+prevents aggregation hierarchy loops. GMFHS performs unpredictably if an
+aggregation hierarchy loop is introduced into the aggregation hierarchy. For more
+information about how to use method DUIFCUAP, see “DUIFCUAP: Update
+Aggregation Path Method” on page 499.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Using RODM methods and notifications, the aggregation hierarchy can be
+modified at any time. Whole sections of the hierarchy can be linked or unlinked.
+For example, in Figure 31 on page 130, A34 can be unlinked from A22 and linked
+to A31. This procedure has no effect on the status of A11 because the same objects
+still report to A11. However, the logical group of objects reporting to A21, A31, and
+A22 has changed as a result of the hierarchy change, and the statuses of these
+aggregate objects can be different. GMFHS dynamically handles these hierarchy
+changes when a link or unlink is done using the DUIFCUAP method.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note: </b>>A12 can experience a temporary status change, depending on the length of
+time between the unlinking and relinking of A34.</p>
+        <h2>Updating Status</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Aggregation is performed on an aggregation hierarchy from the time that the first
+AggregationParent to AggregationChild link occurs to the time that the last
+AggregationParent from AggregationChild unlink occurs. The central purpose of
+aggregation is to keep the statuses of all aggregate objects in the aggregation
+hierarchy accurate at all times. The statuses of the aggregate objects are determined
+by collecting the status of all real object children under an aggregate object, and
+then performing a set of aggregation rules on the collected statuses using RODM
+fields defined on both the aggregate and real objects.</p>
+        <h3>How Status Affects Aggregation</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Only the statuses of real object children contribute to the status value of an
+aggregate parent. The statuses of child aggregate objects do not contribute to the
+statuses of parent aggregate objects, because these objects do not represent a real
+entity. For example, in Figure 31 on page 130, real object children R10, R11, R12,
+and R13 contribute statuses to aggregate objects A41 and A34; however, object A41
+does not contribute status to aggregate object A34.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The aggregation process can be summarized as follows:</p>
+        <ol><li>An event occurs that affects the status of aggregate objects in the aggregation
+hierarchy. See “Events That Start the Aggregation Process” on page 138. for
+more information.<li>Gather the statuses of all real objects that affect the aggregate objects.</li><li>Gather the statuses of all real objects that affect the aggregate objects.</li><li>Calculate the status of the aggregate object as described in “Using the
+DisplayStatus of Real Objects.”</li><li>Update the status of the aggregate object if it has changed.</li><li>Return to step 1 and wait for the next event.</li></ol>
+        <h3>Using the DisplayStatus of Real Objects</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Although many RODM fields are used during the aggregation process, the
+DisplayStatus field is central to this process. Step 3 of the aggregation process
+listed under “How Status Affects Aggregation” uses the DisplayStatus field as
+follows:</p>
+        <li>Counts the number of children contributing to the XCPT group.</li>
+        <li>For each object contributing to the XCPT group, further categorizes the object
+into a number of status groups based on the status of the object.</li>
+        <li>Counts the number of object children in each status group.</li>
+        <li>Applies the aggregation rules listed in “Aggregation Rules” on page 137 to the
+XCPT group and status group counts to determine the status of the aggregate
+object.</li>
+        <li>Updates the status of the aggregate object if it has changed.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;XCPT Groups and Status Groups:</b> Real objects can be members of the XCPT
+group and in zero to eight status groups, depending on their status values. These
+groups provide a way to prioritize and define the contribution of a real object to
+the status of an aggregate object. The eight different status groups are STGRP1
+(Status Group 1) through STGRP8.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;A real object is a member of an XCPT group, a status group, or both when the
+status of the real object matches one of the status values defined for the group. The
+status values defined for each group are customizable. For more information about
+defining XCPT and status group status values, see “Customizing the DisplayStatus
+Mapping Table for Exception Views” on page 102.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The XCPT group is used for exception view processing and aggregation
+processing. For aggregation processing, the status of each real object under an
+aggregate object is used to categorize the real object as having been in an exception
+(XCPT) or a non-exception (NOXCPT) state. All real objects in the XCPT state are
+counted in the XCPT group. For more information about the XCPT group and the
+status groups, see “Defining Exception View Objects and Criteria” on page 98.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note: </b>For a real object to be further categorized into the 8 status groups, the real
+object must also be counted in the XCPT group.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Example: In Figure 31 on page 130, aggregate A41 has real object children R10,
+R11, R12, and R13. Assume the following DUIFSMTE statements are coded in the
+DUIFSMT table:</p>
+        <img src="C:\Users\HP\Pictures\Saved Pictures\i7.png">
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;Figure 33. Example DUIFSMTE Statements in Table DUIFSMT</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Also assume that the actual status values of the objects are:</p>
+        <li>R10 is UNSAT</li>
+        <li>R11 is DS140</li>
+        <li>R12 is DS158</li>
+        <li>R13 is UNKWN</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;In this example, all four resources are in an exception state and are counted in the
+XCPT group. R10 is a member of status groups 1 and 6; R11 is a member of statusgroup 5; R12 is a member of status groups 1 and 8; R13 is a member of status
+group 8. For aggregate object A41, there are:</p>
+        <li>Four real objects in the XCPT group.</li>
+        <li>Two real objects in status groups 1 and 8.</li>
+        <li>One real object in status groups 5 and 6.</li>
+        <li>Zero real objects in status groups 2, 3, 4, and 7.</li>
+        <b>Notes:</b>
+        <ol><li>For any DUIFSMTE macro definition, the status values defined for each status
+group sh be a subset of the status values defined for the XCPT group. An
+attempt to define a status group status value that is not also an XCPT group
+status value is not prevented; however, it has no affect on aggregation status
+calculations.<li>The first DUIFSMTE statement in Figure 33 on page 133 has a status value of
+DS158 defined for STGRP6. This is enabled by the DUIFSMTE statement, but a
+status of DS158 is not counted toward STGRP6 because DS158 is not also in the
+XCPT group.</li><li>A status value in the XCPT group does not have to be defined as a status value
+in any of the status groups; a real object can contribute to the XCPT group
+without contributing to any of the status groups.</li></ol>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Suspended Resources: </b>Real objects can be temporarily removed from the
+aggregation hierarchy without actually changing the AggregationParent and
+AggregationChild fields. This logical removal is referred to as suspending the object.
+The following techniques can be used to suspend objects:</p>
+        <li>Using NetView management console, you can set the suspend flag of a resource
+from the Resource Properties window or clear suspended resources from the List
+of Suspended Resources window. For more information, see the NetView
+management console online help.</li>
+        <li>Using RODMView, you can set the UserStatus field directly in RODM, . For
+more information, see the IBM Tivoli NetView for z/OS Data Model Reference.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Real objects can be suspended by an operator for any reason. In most cases, the
+object is suspended when problem resolution for the real resource represented by
+the object is being done. The object is said to be resumed when it is logically placed
+back into the aggregation hierarchy.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;GMFHS uses the SuspendedCount field to track the number of resources that have
+been suspended. A real resource does not contribute status to its aggregation
+parents if one of the following actions occurred:</p>
+        <li>The suspend flag of the UserStatus field is on.</li>
+        <li>The AggregationPriorityValue field has a value of -1 (Ignore).</li>
+        <li>The AggregationPriorityValue field has a value of -2 (Resource type default).
+The DefaultAggregationPriorityCopy field contains a copy of the value in the
+DefaultAggregationPriorityValue field of the Display_Resource_Type_Class
+object that is linked to the DisplayResourceType field of the real object. If the
+DefaultAggregationPriorityCopy field is -1 (Ignore) and the
+AggregationPriorityValue field is -2 (Resource type default), this resource does
+not participate in status calculations for aggregation.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note:</b> Setting the AggregationPriorityValue or DefaultAggregationPriorityValue
+fields to -1 (Ignore) does not affect the suspend flag of the UserStatus field. These
+actions are independent of each other and do not cause the other to occur</p>
+        <h3>Calculating the Aggregate Parent Status</h3>
+        <p>After categorizing the status of each real object child into the XCPT group and
+status groups, and then counting the number of real object children in each group
+for a particular aggregate object, independent methods are used to calculate the
+status of an aggregate object. Aggregation rules are then used to resolve any
+conflicting status results produced by each of the methods.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Aggregation Thresholds:</b> The status of an aggregate parent is determined based
+on whether the XCPT group count is above or below a threshold value. There are
+three threshold values defined as RODM fields on all aggregate objects. The values
+are listed below in order of severity: :</p>
+        <li>ThresholdDegraded (lowest severity)</li>
+        <li>ThresholdSeverelyDegraded</li>
+        <li>ThresholdUnsatisfactory (highest severity)</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;A threshold is met if the XCPT group count for an aggregate object is greater than
+or equal to the threshold value. The ThresholdSeverelyDegraded value must be
+less than or equal to the ThresholdUnsatisfactory value, and the
+ThresholdDegraded value must be less than or equal to the
+ThresholdSeverelyDegraded value.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The valid values for these fields are described in the IBM Tivoli NetView for z/OS
+Data Model Reference. The values are as follows:</p>
+        <li>A value of -2 indicates that the value of the default field from the
+Display_Resource_Type_Class object (either DefaultThresholdDegraded,
+DefaultThresholdSeverelyDegraded, or DefaultThresholdUnsatisfactory) is used
+to define the threshold value. The default values can be -1, 0, or any positive
+integer. These default values substitute directly for the actual threshold values.</li>
+        <li>A value of -1 in the threshold field indicates that this threshold calculation is
+disabled for the aggregate object.</li>
+        <li>A value of 0 in the threshold field indicates that the object always changes to the
+threshold status, no matter what the XCPT group count for the aggregate parent
+is. If more than one threshold has a 0 value, then the highest priority threshold
+takes effect.</li>
+        <li>A positive number indicates that the XCPT group count must be equal to or
+greater than the number to cause the aggregate object to change to the threshold
+status value. The highest priority threshold that meets this condition is the
+threshold that is used to apply the status.</li>
+        <li>A value between -100 and -200 (inclusive) in the threshold field indicates that
+the XCPT group count must be equal to or greater than the following value:
+(value + 100) × (total number of real objects reporting to the aggregate) × 0.01
+In effect, the value is a percentage of the total number of real objects currently
+attached to the aggregate object.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Aggregation Priority: </b>Aggregation priority allows real objects to be designated as
+critical resources. If a critical resource contributes to the XCPT group of an
+aggregate parent, this constitutes an automatic match with the degraded threshold.
+Additional critical resources that contribute to the XCPT group has no additional
+effect. When the last critical resource no longer contributes to the XCPT group, the
+degraded threshold is no longer matched.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The AggregationPriorityValue field is defined on all real objects and it is used to
+define a real object as a critical resource. The valid values for this field are
+described in the IBM Tivoli NetView for z/OS Data Model Reference. Generally, the
+values are:</p>
+        <li>A value of -2 indicates that the value of the default field from the
+Display_Resource_Type_Class objects DefaultAggregationPriorityValue field is to
+be used to define the priority value. The default values can be -1, 0, or any
+positive number in the range of 1–9. These default values substitute directly for
+the actual priority values.</li>
+        <li>A value of -1 indicates that the real object is suspended from aggregation.</li>
+        <li>A value of 0 indicates that the real object is not a critical resource.</li>
+        <li>A positive number from 1 through 9 indicates that the real object is a critical
+resource. The number also indicates the number of levels up the aggregation
+hierarchy to which this object contributes its critical nature if the object does
+contribute to the XCPT group. The critical nature of a resource cannot be
+propagated more than 9 levels up the aggregation hierarchy.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note:</b> An aggregation hierarchy can have any number of levels. A real object is
+counted in the XCPT group for any aggregate at any level of the hierarchy. However, if the object is also a critical resource, the critical nature only be
+propagates a maximum of 9 levels above the real object. Therefore, there is a
+degraded threshold match for aggregate objects that are at a level less than or
+equal to the level specified in the AggregationPriorityValue field.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Status Group Customization:</b> Both thresholding and priority aggregation allow
+the status of a parent aggregate object to be set to one of five predetermined
+values: Unknown, Satisfactory, Degraded, SeverelyDegraded, or Unsatisfactory.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The eight status groups are used to customize the actual state of the aggregate
+object. Status group customization is very similar to aggregation priority, without
+the 9 level limit on the aggregation hierarchy.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;With status group customization, the final status of the aggregate parent can be
+customized to be a value other than one of the five predetermined values. All real
+objects that are a member of a particular status group are counted. This is done for
+each status group. If the number of real objects in a status group is greater than
+zero, the status group definitions on the aggregate object are used to determine the
+status of the aggregate object.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The status groups are prioritized from STGRP1 (highest) to STGRP8 (lowest). If
+more than one status group has a count greater than zero, and there is more than
+one matching status group definition for the aggregate object, then the first status
+value in the highest priority status group definition for the aggregate object is used
+as the status for the aggregate object.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp; Resources:</b> The status values of real object children can contribute
+directly to the status values of aggregate parents without necessarily contributing
+to the XCPT group. The total number of real objects with Unknown statuses under
+an aggregate parent is compared to the value in the UnknownThreshold field of
+the Global_Aggregation_Parameters_Class. If this threshold is equaled or exceeded,
+then further aggregation processing for this aggregate parent is not valid and the
+status of the aggregate parent becomes Unknown.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Unlike the three thresholds defined under “Aggregation Thresholds” on page 135,
+this threshold is a number from 1 through 100 that represents a percentage. Thepercentage is applied to the total number of real children objects under the
+aggregate parent that are actively participating in aggregation (not suspended).</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Aggregation Rules:</b> Suspended resources, unknown resources, aggregation
+thresholds, aggregation priority, and status group customization are used to
+calculate the status of an aggregate object. The following aggregation rules are
+used in the order listed to resolve conflicts among the aggregation methods:</p>
+        <ol><li>Logically remove suspended real object children from the aggregation
+hierarchy. This was already done by not allowing suspended real objects to be
+counted in the XCPT and status groups, but the total count of all objects
+reporting to an aggregate parent is now changed to reflect the removal of the
+suspended resources.</li><li>If the total number of real object children is now zero, or if there is no
+DisplayResourceType object currently linked to the aggregate parent and a
+default threshold from this object is needed, the status of the aggregate object is
+set to Unknown and the status calculation ends.</li><li>If the percentage of real object children with an Unknown status is greater than
+the UnknownThreshold, the status of the aggregate object is set to Unknown
+and the status calculation ends.</li><li>If there is a status group customization match with the aggregate object, the
+aggregate object takes on the first status defined in the highest matching status
+group of the aggregate object. The status calculation ends.</li><li>If the number of real object children in the XCPT group is greater than or equal
+to the Unsatisfactory threshold, the status of the aggregate object becomes
+Unsatisfactory and the status calculation ends. The Unsatisfactory threshold can
+be expressed as an absolute count or as a percentage.</li><li>If the number of real object children in an XCPT group is greater than or equal
+to the SeverelyDegraded threshold, the status of the aggregate object becomes
+SeverelyDegraded and the status calculation ends. The ServerelyDegraded
+threshold can be expressed as an absolute count or as a percentage.</li><li>If the number of real object children in an XCPT group is greater than or equal
+to the Degraded threshold, the status of the aggregate object becomes Degraded
+and the status calculation ends. The Degraded threshold can be expressed as an
+absolute count or as a percentage.</li><li>If the number of real object children counted in the XCPT group that are critical
+resources is greater than zero, the status of the aggregate object becomes
+Degraded and the status calculation ends. Remember that the
+AggregationPriorityValue field for any real object child might not allow it to be
+counted as a critical resource for the current level of aggregate object.</li><li>If none of the previous conditions apply, the status of the aggregate object
+becomes Satisfactory and the status calculation ends.</li></ol>
+        <h3>Aggregation Problems</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Aggregation is accomplished using various RODM fields. Some of these fields can
+be modified by the customer, and some are for GMFHS method use only. Although
+a customer sh never modify a field that is for GMFHS method use only, RODM
+does not prevent this from happening.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Inconsistencies can arise when:</p>
+        <li>Internal counts are not equal for each aggregate object.</li> 
+        <li>Threshold values are greater than the total number of real object children of an
+aggregate parent, or threshold values that do not follow the restrictions defined
+in “Aggregation Thresholds” on page 135</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;An indicator in the UserStatus field is used to indicate possible inconsistencies
+during aggregation processing.</p>
+        <h3>UserStatus Field</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The UserStatus field on an aggregate object contains information used to set the
+operator status of the object in a view. There are five bits in the UserStatus field
+that contribute to the operator status of an aggregate object:</p>
+        <li>The resource marked bit</li>
+        <li>The threshold inconsistency bit (set as a result of aggregation problems
+described above)</li>
+        <li>The suspended bit</li>
+        <li>The resume bit</li>
+        <li>The suspend resources under aggregate bit</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The resource marked, suspended, resume, and suspend resources under aggregate
+bits are set as a result of an operator action or by setting the UserStatus field
+directly in RODM (using RODMView for example). The threshold inconsistency bit
+            is set during the aggregation process if an inconsistency is detected.</p>
+        <h3>Events That Start the Aggregation Process</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;A number of events can start the aggregation process. In general, aggregation is
+triggered based on a change to one of the RODM fields used for the aggregation
+process. For example, a link is made using the AggregationParent and
+AggregationChild field of two objects, or a DisplayStatus change occurs for a real
+object in the aggregation hierarchy. The following topics describe each of the
+events that trigger the aggregation process.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Changing the DisplayStatus of a Real Object:</b> This is the most common event
+that triggers the aggregation process. The DisplayStatus value of a real object can
+change for a variety of reasons, such as a status change request from a NetView
+management console or a NetView alert. Any time the status of a real object that is
+a member of the aggregation hierarchy changes, the status of all aggregate parents
+of that real object might also need to be changed.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If the real object was suspended with the automatic resume feature and the status
+of the object is now Satisfactory, the object is logically relinked to the aggregation
+hierarchy and aggregation for the object is resumed.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If there is no change in the contribution of an object to the XCPT group or a status
+group, and the object does not change to or from Unknown status, then there is no
+change to the aggregate parent status.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Linking and Unlinking Using Method DUIFCUAP:</b> The AggregationParent and
+AggregationChild fields of the child object and parent object passed to the
+DUIFCUAP method are updated. Although a link or unlink operation involves
+only two objects (the child object and the parent object), the action can affect the
+status values of many aggregate objects in the aggregation hierarchy.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;After a link or unlink operation, the status of the immediate parent aggregate
+object and all parent objects of the immediate parent aggregate object can need to
+be changed.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Changing the AggregationPriorityValue: If the AggregationPriorityValue of a real
+object is changed, then the status of all aggregate parents of the real object might
+need to be changed. If the real object is not counted in the XCPT group for the</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;aggregate parent object, there is no change to the aggregate parent status. The
+following techniques can be used to change the value of the
+AggregationPriorityValue field:</p>
+        <li>Use the NetView management console workstation. For more information, see in
+the IBM Tivoli NetView for z/OS User's Guide: NetView Management Console.</li>
+        <li>Use NetView management console. For more information, see the NetView
+management console online help.</li>
+        <li>Set the AggregationPriorityValue field directly in RODM (using RODMView, for
+example). For more information, see the IBM Tivoli NetView for z/OS Data Model
+Reference.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Changing an Aggregate Object Threshold:</b> If any of these thresholds are
+changed, the status of that specific aggregate object might need to be changed. The
+following techniques can be used to change the value of the ThresholdDegraded,
+ThresholdSeverelyDegraded, and ThresholdUnsatisfactory fields:</p>
+        <li>Use NetView management console. For more information, see the NetView
+management console online help.</li>
+        <li>Set the fields directly in RODM (using RODMView, for example). For more
+information, see the IBM Tivoli NetView for z/OS Data Model Reference.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Changing the Unknown Threshold:</b> If this threshold is changed, the status of all
+aggregate objects in the aggregation hierarchy might need to be changed. Two
+techniques can be used to change the value of the UnknownThreshold field of the
+Global_Aggregation_Parameters_Class:</p>
+        <li>By setting the UnknownThreshold field directly in RODM (using RODMView
+for example). For more information, see the IBM Tivoli NetView for z/OS Data
+Model Reference.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Note: </b>You cannot use NetView management console to change the value of the
+UnknownThreshold field.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Suspending a Real Object: </b>If a resource is suspended, the status of all aggregate
+parents of that real object might need to be changed. A real object can be
+suspended from participating in aggregation at the workstation. The following
+techniques can be used to suspend a real object from participating in aggregation:</p>
+        <li>Use NetView management console. For more information, see the NetView
+management console online help.</li>
+        <li>Set the UserStatus field directly in RODM (using RODMView, for example). For
+more information, see IBM Tivoli NetView for z/OS Data Model Reference.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Changing Resource Type Defaults: </b>The AggregationPriorityValue field for a real
+object can indicate that the value of the DefaultAggregationPriorityValue field from
+the Display_Resource_Type_Class object linked to the real object sh be used for
+priority aggregation. The ThresholdDegraded, ThresholdSeverelyDegraded, and
+ThresholdUnsatisfactory fields for aggregate objects can indicate that the value of
+the default fields from the Display_Resource_Type_Class object linked to the
+aggregate object sh be used for threshold aggregation.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;For a real or aggregate object using these defaults, the effect is the same as if the
+priority value or threshold field directly on the object had changed. The primary
+difference is that multiple real or aggregate objects can be changed because a
+Display_Resource_Type_Class object can be linked to multiple objects.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The following techniques can be used to change the value of the
+ThresholdDegraded, ThresholdSeverelyDegraded, and ThresholdUnsatisfactory
+fields:</p>
+        <li>Use NetView management console. For more information, see the NetView
+management console online help.</li>
+        <li>Set the field directly in RODM (using RODMView, for example). For more
+information, see the IBM Tivoli NetView for z/OS Data Model Reference.</li>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Linking and Unlinking Using Method DUIFCLRT: </b>Method DUIFCLRT is used
+to associate a real or aggregate object with an object of the
+Display_Resource_Type_Class. For real objects, this can affect the priority
+aggregation value of the object if the default value from the
+Display_Resource_Type_Class object is being used. For aggregate objects, this can
+affect any of the Degraded, SeverelyDegraded, or Unsatisfactory thresholds of the
+object if the default value from the Display_Resource_Type_Class object is being
+used.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;For a real or aggregate object using any of these defaults, the effect is the same as
+if the priority value or threshold field directly on the object had changed.</p>
+        <p><b>&nbsp;&nbsp;&nbsp;&nbsp;Changing the Status Mapping Table:</b> The status mapping table can be
+dynamically updated using sample CNMSJH13. Because the definition of the XCPT
+group or any of the eight status groups can change, this sample optionally allows
+the DisplayStatus value of each real object in RODM to be updated (changed to the
+same value that it currently has) to trigger exception view and aggregation status
+recalculations.</p>
+        <h3>Aggregation Methods</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;“GMFHS Methods” on page 496 provides a list of GMFHS methods. Each of the
+methods that are described, beginning with DUIFCLRT, contribute at least
+indirectly to aggregation. Three of these methods, DUIFCUAP, DUIFFAWS, and
+DUIFFRAS contribute directly to aggregation</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Methods DUIFFAWS and DUIFFIRS are used to synchronize the aggregation
+hierarchy if the UserStatus field of an object indicates that there is a threshold
+inconsistency, or any time that an operator decides that the status of aggregate
+objects might be incorrect. DUIFFRAS performs a subset of the function performed
+by DUIFFAWS. DUIFFRAS causes the status of each aggregate object to be
+recalculated based on the existing XCPT group and status group counts for each
+aggregate object. DUIFFAWS extends DUIFFRAS by accumulating all of the XCPT
+group and status group counts for each aggregate object before recalculating the
+status of the aggregate object.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;See “GMFHS Methods” on page 496 for a description of these methods.</p>
+        <h3>Status Groups</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The status (the value of the DisplayStatus field) of an aggregate object can be
+customized based on the status of real object children under the aggregate.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The sample table DUIFSMT described in “Defining Exception Criteria” on page 99
+is used for this purpose. The STGRPn keywords (where n = 1 through 8) of the
+DUIFSMTE macro are used to map the status of real children objects to the desired
+status of the aggregate parent. For more information about the DUIFSMTE macro
+and how to refresh the DUIFSMT table, see “Customizing the DisplayStatus
+Mapping Table for Exception Views” on page 102.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The STGRPn keywords are used to group DisplayStatus values in the same way
+that the XCPT keyword is used for exception views. The groups are organized in a
+priority manner, with STGRP1 being the highest priority group and STGRP8 being
+the lowest. The same status value can belong to more than one status group; in
+effect, all status values can be placed in every status group. The DisplayStatus
+value must also be an XCPT value for it to register as a STGRPn keyword.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Status groups are used to map the status of a real object to the status of any parent
+aggregate objects. If a real object changes to a status value that is in any of the
+status groups, then the corresponding status group for all parent aggregate objects
+are used to determine the status value of the aggregate objects. If the real object
+status value is listed in more than one group, then the highest priority group that
+contains the status value is used.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The exception state of the real object is used to determine the status of any
+aggregate parents under the following conditions:</p>
+        <li>The real object has no status groups, or the status value of the real object is not
+contained in any status group.</li>
+        <li>The matching status group for the parent aggregate object is not defined.</li>
+        <h3>Using Status Groups</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The following list contains additional operational characteristics of performing
+aggregation using status groups:</p>
+        <li>A status group match for an aggregate parent overrides the previous status of
+that parent. The status group override remains in effect until either:</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;1. A higher priority status group match occurs for the aggregate parent.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;2. The status value of the last real object that is contributing to the current
+highest priority status group for the aggregate parent no longer matches that
+status group, or the real object is unlinked from the hierarchy or is
+suspended from aggregation.</p>
+        <li>A status group match overrides the status value of an aggregate parent at any
+level of the aggregation hierarchy; there is no level limit as there is with
+aggregation priority values.</li>
+        <li>As with exception based aggregation, suspended objects do not participate in
+status group aggregation.</li>
+        <li>The aggregate object threshold for the Unknown status of real objects is not
+overridden by status group aggregation.</li>
+        <h3>Examples of Customizing Aggregate DisplayStatus</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The following example is provided to give an understanding of using status
+groups to customize the DisplayStatus value of an aggregate object. For the
+example, assume the following conditions:</p>
+        <li>All objects of the T4NODE class contribute to exception state aggregation with a
+DisplayStatus of unsatisfactory or unknown. If the DisplayStatus is
+unsatisfactory, it is tagged to status group 1.</li>
+        <li>All objects of the 1.3.18.0.0.1821 class contribute to exception state aggregation
+with a DisplayStatus of unsatisfactory, intermediate, or unknown. If the
+DisplayStatus is intermediate or unknown, it is tagged to status group 2.</li>
+        <li>All aggregate objects have a status group match for status groups 1 and 2. An
+object of the T4NODE class with an unsatisfactory status results in the status of
+any aggregate parent to be DS136. An object of the 1.3.18.0.0.1821 class that haseither an unsatisfactory or an intermediate status results in the status of an
+aggregate parent to be DS137, as long as this status is not overridden by a status
+group 1 match.</li>
+        <li>Any object not in one of the three previously defined classes contributes to
+exception state aggregation with a DisplayStatus of unsatisfactory or medium
+unsatisfactory. If the DisplayStatus is UNSAT, it is tagged to status group 3.
+Because there is no matching status group 3 definition on any aggregate object, a
+real object DisplayStatus of UNSAT never causes a status group 3 override on an
+aggregate parent.</li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Using the previously listed conditions, Figure 34 shows the coding of the
+DisplayStatus mapping table. The fourth statement sets the defaults.</p>
+        <img src="C:\Users\HP\Downloads\i8.png">
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;Figure 34. Example of Customizing Aggregate Display Status</p>
+          <hr style="border-top: 2px solid black">
+        <h3>Using the Collection Definition Objects</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Collection definition objects are used by the GMFHS RODM Collection Manager
+function to define the contents of Network_View_Class and
+GMFHS_Aggregate_Objects_Class objects. Collection definition objects are created
+in either the Network_View_Collection_Class or the Aggregate_Collection_Class.
+Each of these classes are subclasses of the Collection_Definition_Class. Objects
+must not be created on the Collection_Definition_Class.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The Network_View_Class and GMFHS_Aggregate_Objects_Class objects defined by
+the collection definition objects are called collection creation objects. Collection
+creation objects are created by the GMFHS RODM Collection Manager function
+from the information in a collection definition object. The RODM Collection
+Manager continuously watches for new collection definition objects to be created
+or deleted in RODM. It creates a corresponding collection creation object
+dynamically. In addition, changes to the resource collection on an existing
+collection definition object are monitored continuously. The changes are
+dynamically reflected to the corresponding collection creation object.</p>
+        <h3>Collection Definition Objects</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Fields on a collection definition object specify the following information:</p>
+        <li>The RODM MyName of the collection creation object.</li>
+        <li>If a Network_View_Collection_Class object, the Annotation of the
+Network_View_Class collection creation object.</li>
+        <li>If an Aggregate_Collection_Class object, the DisplayResourceUserData of the
+GMFHS_Aggregate_Objects_Class collection creation object.</li>
+        <li>If an Aggregate_Collection_Class object, the DisplayResourceName of the
+GMFHS_Aggregate_Objects_Class collection creation object.</li>
+        <li>If an Aggregate_Collection_Class object, the DisplayResourceType of the
+GMFHS_Aggregate_Objects_Class collection creation object.</li>
+        <li>If an Aggregate_Collection_Class object, the DisplayResourceOtherData of the
+GMFHS_Aggregate_Objects_Class collection creation object.</li>
+        <li>If an Aggregate_Collection_Class object, the DegradedThreshold of the
+GMFHS_Aggregate_Objects_Class collection creation object.</li>
+        <li>If an Aggregate_Collection_Class object, the SeverelyDegradedThreshold of the
+GMFHS_Aggregate_Objects_Class collection creation object.</li>
+        <li>If an Aggregate_Collection_Class object, the UnsatisfactoryThreshold of the
+GMFHS_Aggregate_Objects_Class collection creation object.</li>
+        <li>The LayoutType of the Network_View_Class of
+GMFHS_Aggregate_Objects_Class collection creation object.</li>
+        <li>If an Aggregate_Collection_Class object, request-specific flags that are used to
+process the aggregate collection.</li>
+        <li>A data field that holds information that is interpreted by the NetView
+management console.</li>
+        <li>A logic tree of rules that an object must pass to be included in the
+Network_View_Class or GMFHS_Aggregate_Objects_Class collection creation
+object.</li>
+        <h3>Collection Definition Object Fields</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;See the IBM Tivoli NetView for z/OS Data Model Reference for complete information
+about the collection definition object classes and fields.</p>
+        <p>Most of the fields on the collection definition object are copied directly to the field
+of the same name on the collection creation object. Some of the fields, such as the
+RequestFlags, CollectionLocateName, and WizardHints field, are used only by the
+RODM Collection Manager. They are not used to supply a value to a field on the
+collection creation object.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Some of the collection definition object fields are used to indirectly supply a value
+to a field on the collection creation object. The LayoutType field, when specified on
+an Aggregate_Collection_Class object, is converted to a character string and
+appended to the string "RCMLayoutParmViewType". This concatenated string is
+used as the name of a Layout_Parameters_For_View_Class object. This object is
+then linked to the DetailViewLayoutForSelectedResource field of the collection
+creation object.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;In a similar way, the DisplayResourceType field is used as the name of a
+Display_Resource_Type_Class object. This object is then linked to the
+DisplayResourceType field of the collection creation object. The CollectionSpecn
+fields are used to populate the ContainsObjects field of a Network_View_Class
+collection creation object and the AggregationChild and IsPartOf fields of a
+GMFHS_Aggregate_Objects_Class collection creation object. See “Using Collection
+Specifications” for more information about the usage of these fields.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If the collection creation object already exists in RODM, it is deleted and recreated
+using the information in the collection definition object. Name your collection
+creation object objects carefully to ensure that they do not overwrite existing
+Network_View_Class or GMFHS_Aggregate_Object_Class objects. Adding a prefix
+or suffix to the collection creation object name that identifies it as an object that
+was created by the RODM Collection Manager is an easy way to prevent creating a
+duplicate collection creation object.</p>
+        <h2>Using Collection Specifications</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The collection specification is contained in the CollectionSpecn fields of the
+collection definition object. These fields are concatenated together in ascending
+numerical order of the n numeric portion of the field to create the full collection</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;specification. The first CollectionSpecn field must be CollectionSpec1. A collection
+specification contains a set of rules that describe the objects to be in the
+Network_View_Class collection creation object ContainsObjects field or the
+GMFHS_Aggregate_Objects_Class AggregationChild and IsPartOf fields.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The rules in the collection specification are applied dynamically. The rules match
+objects that currently exist in RODM at the time the rules are initially processed by
+the RODM Collection Manager function as well as objects that are dynamically
+added to or deleted from RODM after the rules are initially processed. The RODM
+Collection Manager places a RODM notification on all fields in all classes that are
+specified in any collection specification for any collection definition object and is
+then notified when the value of these fields change for any object. As a result, the
+RODM Collection Manager can update the objects in a collection creation object
+whenever a change occurs in RODM that affects the collection creation object.</p>
+        <h3>Conditional Statements</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Conditional statements are logically joined together and are a part of a collection
+specification.. Each conditional statement is composed of a RODM field, a RODM
+class, a value (or optionally), a set of values, and an operation. For each object
+within the specified class, the specified field is compared to the value or
+list-of-values using the operation. If the operation compares successfully, then the
+object matches the condition. Otherwise, it fails the condition. The list of all objects
+that compare successfully with the condition are the result of the conditional
+statement. These objects are of RODM type ObjectList.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The simplest form of a collection specification is a single conditional statement,
+and can be expressed in the following general terms:
+{Class/Field} operation {Value} ==> list_of_objects</p>
+        <p>For each object in the given Class, take the Field value of the object and compare it
+to Value using the comparison operation. If the values compare successfully, place
+the object in the output list_of_objects.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The {Value} term can also be a reference to a set of values, much like the
+{Class/Field} term indirectly references all objects on the Class. Each value is listed
+directly in the collection specification. When more than one value is listed in the
+{Value} term, the Field value of an object is compared against each value in the
+value list. One or more of the values in the value list must compare successfully
+for the object to be added to the list_of_objects.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The single conditional statement can also be expressed in the following terms:
+{Value1} operation {Value2} ==> list_of_objects</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Where both Value1 and Value2 can be either a single value or a value list. Value1
+refers to the value of the Field on each object in the Class. Value2 refers to the list
+of values directly specified in the conditional statement. This generic syntax is
+useful when complex conditional statements are described.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;In the case of the simple collection specification, the list_of_objects that results
+becomes the object list for either the ContainsObjects field or the
+AggregationChild/IsPartOf fields of the collection creation object. In effect, this
+list_of_objects is the final output from the collection specification</p>
+        <h3>Postfix Notation in Conditional Statements</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;When a postfix notation is used to express the conditional statement, the statement
+is:</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;{Class/Field} {Value} operation ==> list_of_objects</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;or</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;{Value1} {Value2} operation ==> list_of_objects</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Postfix notation is the notation used in the actual collection specification on the
+collection definition object in RODM.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;For example, a simple collection specification is as follows:
+|GMFHS_Managed_Real_Objects_Class|DisplayStatus|132|.EQ.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;This collection specification takes the value of the DisplayStatus field for each
+object in the GMFHS_Managed_Real_Objects_Class and compares it to 132. If the
+values are equal, the object is added to the list_of_objects that satisfy the conditional
+statement. After all objects have been compared, the list_of_objects is put into the
+object list field of the collection creation object.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The conditional statement is also referred to as a leaf specification. A leaf
+specification produces a list_of_objects from a comparison of two lists of values. It is
+a leaf in the processing tree that a collection specification represents conceptually. It
+is a leaf because its Value1 and Value2 operators are not produced by other
+conditional statement evaluations from the collection specification, but instead
+come directly from either the collection specification (Value2) or from a field on an
+object (Value1).</p>
+        <h3>Complex Conditional Statements</h3>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Most collection specifications are not composed of only one conditional statement.
+For an object to be considered a candidate for a network view, for example, you
+can have its DisplayStatus be 132 AND its MyName be Chihuahua. In this case,
+the conjunction AND is used to link the two conditional statements together:</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The syntax for linking conditional statements together in postfix notation is:
+( {Class/Field} operation {Value} ) ( {Class/Field} operation
+{Value} ) conjunction ==> list_of_objects</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;or</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;(leaf_specification) (leaf_specification) conjunction ==> list_of_objects</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Both leaf specifications produce an object list even if the list contains no objects;
+the final list_of_objects is determined by applying the conjunction operator (AND or
+OR) to the two object lists. If the conjunction is AND, then the object identifier
+must be in both lists for it to be in the resulting list_of_objects. If the conjunction is
+OR, then the object identifier must be in one or the other list for it to be in the
+resulting list_of_objects.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Since a leaf specification evaluates to a list_of_objects, the generic form of the
+previous syntax is:
+(list_of_objects)(list_of_objects) conjunction ==> list_of_objects</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;This syntax is also referred to as a node specification. A node specification uses the
+output from other conditional statements (object lists) as the operands of the
+conjunction. Since a node specification itself is a conditional statement that
+produces an object list, an unlimited complex conditional can be built by
+recursively substituting node specifications in the simple node specification as
+described here.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;For example, consider the following complex conditional in postfix notation:</p>                                                      <p>&nbsp;&nbsp;&nbsp;&nbsp;(a) (b) EQ (c) (d) EQ AND (e) (f) EQ (g) (h) EQ AND O</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;To continue this example, we build it up to the generic form of a complex
+conditional. First, (a) (b) EQ is a leaf specification:</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;(leaf_specification) (c) (d) EQ AND (e) (f) EQ (g) (h) EQ AND OR</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Next, (c) (d) EQ is also a leaf specification:</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;(leaf_specification) (leaf_specification) AND (e) (f) EQ (g) (h) EQ AND O</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;or</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;(list_of_objects) (list_of_objects) AND (e) (f) EQ (g) (h) EQ AND</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Next, (list_of_objects) (list_of_objects) AND is in the form of a node specification:</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;(node_specification) (e) (f) EQ (g) (h) EQ AND</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;or</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;(list_of_objects) (e) (f) EQ (g) (h) EQ AND OR</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Next, (e) (f) EQ (g) (h) EQ is identical to (a) (b) EQ (c) (d) EQ:<br>
+(list_of_objects) (leaf_specification) (leaf_specification) AND OR</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Evaluating the complex conditional that involves the leaf specifications, we have:<br>
+(list_of_objects) (node_specification) OR</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;or</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;(list_of_objects) (list_of_objects) OR</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;This final conditional matches the generic syntax described here, and produces the
+final object list for the complex conditional. See “Stack Model Postfix Processing”
+for more information about the method used to actually evaluate the postfix
+notation used in a collection specification.</p>
+        <h2>Stack Model Postfix Processing</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;A collection specification is processed by using a virtual stack to hold the
+intermediate results from the conditional statements in the collection specification.
+Any output from a leaf specification, which is an object list, is added to the stack.
+When a conjunction is encountered in the collection specification, the last two
+object lists added to the stack are removed from the stack, the conjunction is
+applied to the object lists, and the resulting object list is added to the stack. This
+processing continues, left to right, to the end of the collection specification. At the
+end of the collection specification, there sh be one and only one object list left on
+the stack. If this is not the case, the collection specification is syntactically incorrect.
+The object list left on the stack is the final result of the collection specification. It is
+assigned directly to the ContainsObjects or AggregationChild/IsPartOf fields of the
+collection creation object.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Although leaf specifications are processed using the postfix notation, the input to
+the operator (Value1 and Value2) are not object lists. The stack only contains object
+lists. Therefore, leaf specifications are evaluated without using the stack. Their
+output, which is a list of objects, is added to the stack.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The following example shows the stack operations that occur while evaluating the
+example of a complex conditional in postfix notation that is described in “Complex
+Conditional Statements” on page 145:</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;(a) (b) EQ (c) (d) EQ AND (e) (f) EQ (g) (h) EQ AND</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Initially, the stack is empty. Reading the collection specification from left to right,
+the leaf specification (a) (b) EQ is evaluated to the object list a_b_objects and added
+to the stack. The result is:</p>
+        <table class="row1" style="width: 50%">
+            <tr>
+                <td class="tab2">Stack contains:</td>
+                <td class="tab2">a_b_objects</td>
+            </tr>
+            <tr>
+            <td class="tab2">Remaining specification:</td>
+                <td class="tab2">(c) (d) EQ AND (e) (f) EQ (g) (h) EQ AND OR</td>
+            </tr>
+        </table>
+        <style>
+            .row1 ,.tab2{
+                border: 2px solid black;
+                border-collapse: collapse;
+            }
+        </style>
+    <p>Since (c) is not a conjunction, what follows must be another leaf specification;
+anything other than a conjunction or a valid leaf specification is syntactically
+incorrect. (c) (d) EQ is evaluated to the object list c_d_objects and added to the
+stack. The result is:</p>
+    
+         
+        <body>
+        <table class="row1"style="width: 50%">
+            <tr>
+                <th class="tab2"rowspan="2">Stack contains:</th>
+                <td class="tab2">c_d_objects</td>
+            </tr>
+            <tr>
+            <td class="tab2">a_b_objects</td>
+            </tr>
+            <tr>
+                <th class="tab2">Remaining specification:</th>
+                <td class="tab2">AND (e) (f) EQ (g) (h) EQ AND OR</td>
+            
+            </tr>
+            </table>
+        </body>
+    
+     
+    <p>AND is a conjunction, so the first two object lists on the stack (in this case, the
+only two), are removed, then evaluated using the conjunction, and the result is
+added to the stack. It is an error if the stack does not contain two or more object
+lists when a conjunction is evaluated. The result is:</p>
+       <table class="row1"style="width: 50%">
+            <tr>
+                <td class="tab2">Stack contains:</td>
+                <td class="tab2">a_b_AND_ c_d_objects</td>
+            </tr>
+            <tr>
+            <td class="tab2">Remaining specification:</td>
+                <td class="tab2">(e) (f) EQ (g) (h) EQ AND OR</td>
+            </tr>
+        </table>
+        
+    
+    <p>Because (e) is not a conjunction, what follows is another leaf specification. (e) (f)
+EQ is evaluated to the object list e_f_objects and is added to the stack. The result
+is:</p>
+
+         
+        <body>
+        <table class="row1"style="width: 50%">
+            <tr>
+                <th class="tab2"rowspan="2">Stack contains:</th>
+                <td class="tab2">e_f_objects</td>
+            </tr>
+            <tr>
+            <td class="tab2">a_b_AND_ c_d_objects</td>
+            </tr>
+            <tr>
+                <th class="tab2">Remaining specification:</th>
+                <td class="tab2">(g) (h) EQ AND OR</td>
+            
+            </tr>
+            </table>
+        </body>
+    
+    <p>Because (g) is not a conjunction, what follows is another leaf specification. (g) (h)
+EQ is evaluated to the object list g_h_objects and is added to the stack. The result
+is:</p>
+
+         
+    
+        <body>
+        <table class="row1"style="width: 50%">
+            <tr>
+                <th class="tab2"rowspan="3">Stack contains:</th>
+                <td class="tab2">g_h_objects</td>
+            </tr>
+            <tr>
+            <td class="tab2">e_f_objects</td>
+            </tr>
+            <tr>
+            <td class="tab2">a_b_AND_ c_d_objects</td>
+            </tr>
+            <tr>
+                <th class="tab2">Remaining specification:</th>
+                <td class="tab2">AND OR</td>
+            
+            </tr>
+            </table>
+        </body>
+        <p>AND is a conjunction, so the first two object lists on the stack are removed,
+evaluated using the conjunction, and the result is added to the stack. The result is:</p>
+        <table class="row1"style="width: 50%">
+            <tr>
+                <td class="tab2">Stack contains:</td>
+                <td class="tab2">e_f_AND_g_h_objects</td>
+            </tr>
+            <tr>
+             <td></td>
+                <td class="tab2">a_b_objects AND c_d_objects</td>
+            </tr>
+            <tr>
+            <td class="tab2">Remaining specification:</td>
+                <td class="tab2">OR</td>
+            </tr>
+        
+       
+            </table>
+        <p>Finally, OR is a conjunction, so the last two object lists on the stack are removed,
+evaluated using the conjunction, and the result is added to the stack. The result is:</p>
+      <table class="row1"style="width: 50%">
+            <tr>
+                <td class="tab2">Stack contains:</td>
+                <td class="tab2">a_b_AND c_d_objects_OR_e_f_AND_g_h_objects)</td>
+            </tr>
+            <tr>
+            <td class="tab2">Remaining specification:</td>
+                <td class="tab2"></td>
+            </tr>
+        
+        
+          </table>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;At this point, there sh be only one object list on the stack (there is) and nothing left
+in the collection specification. If either of these is not true, the collection
+specification was syntactically incorrect. The final object list is the result of the
+collection specification, and is copied to the collection creation object.</p>
+        <h2>Collection Specification Syntax</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The syntax for the collection specification field is:</p>
+        <img src="C:\Users\HP\Downloads\anu img2.png">
+        <img src="C:\Users\HP\Downloads\anu img1.png">
+        <h2>Collection Specification Values</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The {Value} portion of a leaf specification can be thought of as a pattern. A pattern
+is a sequence of characters, some of which have special meanings, that is matched
+against a specific value or set of values. The special characters allow a pattern to
+describe more than one value. A pattern with no special characters describes only
+one value, the value that is composed of exactly the characters in the pattern. A
+pattern with special characters is similar to a list of values, where the list of values
+is composed of all of the unique values that match the pattern. If {Value} is a list of
+values, each of the values within the list can be a pattern with special characters.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;These patterns can be expressed using DOS wildcards or regular expressions. A
+regular expression is a set of characters and operators that define a string or group
+of strings in a search pattern. Regular expressions also contain metacharacters,
+which are characters with special meanings. The default notation for patterns is to
+use DOS wildcards. If the pattern uses regular expressions, the first character of
+the pattern must be the backslash (\). If the pattern does not use any of the special
+characters (in either DOS or regular expression notation), the pattern resolves to
+single unique value for the comparison operation.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;If you want to use DOS wildcards and the first character of the DOS wildcard is a
+backslash (\), then you must escape it with a plus sign (+). That is, +\value is
+interpreted as a DOS wildcard value of \value. Also, if you want to use a DOS
+wildcard and the first character of the DOS wildcard is a plus sign, then you must
+escape that with another plus sign. Again, ++value is interpreted as a DOS
+wildcarded value of +value. The plus sign as an escape character is effective only
+as the first character of the value, and only when followed by another plus sign or
+backslash.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The special characters for DOS patterns are an asterisk (*) and the question mark
+(?). An asterisk matches zero or more characters from where the asterisk is in the
+pattern. A question mark matches any one character in the pattern. Special
+characters for DOS patterns can be used anywhere in a pattern. The pattern
+*re?*om* matches any string that has an re that is preceded by zero or more other
+characters, at least one character after the re, then zero or more characters until om, followed by zero or more characters to</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;A pattern using DOS wildcard characters must always match the entire string that
+it is being compared with. In this example, if the pattern was re?*om without the
+preceding and ending asterisks, then the matched string must begin with re and
+end with om. This is slightly different from the way regular expressions work.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Regular expressions are used for more complex pattern matching. DOS patterns in
+a collection specification are converted to regular expressions by the RODM
+Collection Manager prior to matching the pattern against a value; all pattern
+matching is done by the RODM Collection Manager using regular expressions. The
+regular expression pattern is applied to the substrings of the input string; if it
+matches a substring, then the pattern is considered to have matched the entire
+input string. Because regular expressions match on a substring of the input string,
+the caret (^) metacharacter is added to the beginning of any converted DOS
+wildcard pattern, and the dollar sign ($) metacharacter is added to the end of the
+same converted DOS wildcard pattern in order to enforce the DOS wildcard
+constraint of matching the entire string.</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The simplest form of regular expression is a string of characters with no special
+meaning. The following characters have special meaning; they are used to form
+extended regular expressions:</p>
+        <li> <b>(period)</b></li>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The period symbol matches any one character except the terminal new-line
+            character.</p>
+        <b>[string]</b>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;A string within square brackets specifies any of the characters in the string.
+Thus [abc], if compared to other strings, matches any that contains a, b, or
+c. If the string within the square brackets contains a character, followed by
+a hyphen, followed by another character, it indicates that all of the
+characters in the current collating sequence between the two intervening
+characters are considered a part of the string. For example, [a-z] can be
+equivalent to [abc...xyz] or, with a different collating sequence, it can be
+equivalent to [aAbBcC...xXyYzZ]. If the string within the square brackets
+begins with the caret (^) symbol, it negates the characters within the
+square brackets. Thus [^abc], if compared to other strings, fails to match
+any that contains even one a, b, or c.</p>
+        <h2>expression[m] or expression[m,] or expression[m,u]</h2>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;Integer values enclosed in [ ] indicate the number of times to apply the
+preceding regular expression. The value for m is the minimum number, and u is the maximum number. The value for u must be less than 256. If
+you specify m, it indicates the exact number of times to apply the regular
+expression. [m,] is equivalent to [m,u], where u is an unbounded upper
+limit. They both match m or more occurrences of the expression. The plus
+sign (+) and asterisk (*) operations are equivalent to [1,] and [0,]
+            respectively.</p>
+        <b>expression* (asterisk)</b>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The asterisk symbol indicates zero or more of any characters. For example,
+a*e is equivalent to any of the following strings: 99ae9, aaaaae, a999e99.</p>
+        <b>$ (dollar symbol)</b>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;he dollar symbol matches the end of the string.</p>
+        <b>^ (caret)</b>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The caret symbol matches the beginning of the string.</p>
+        <b>\ (backslash)</b>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;The backslash character turns off the special meaning of any character
+following the backslash, thereby forcing the character to be intepreted as
+itself in the pattern. For example, \. matches the . character, not a \
+followed by any character.</p>
